@@ -1,7 +1,7 @@
 //
 import funkin.backend.system.modules.FunkinCache;
 
-function new() {
+function new()
     FunkinCache.instance.clearSecondLayer();
 
 function update(elapsed:Float)
