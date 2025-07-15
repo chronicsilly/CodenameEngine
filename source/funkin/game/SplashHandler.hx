@@ -2,7 +2,7 @@ package funkin.game;
 
 import funkin.backend.scripting.events.splash.*;
 
-class SplashHandler extends FlxTypedGroup<Splash> {
+class SplashHandler extends FlxTypedGroup<FunkinSprite> {
 	/**
 	 * Map containing all of the splashes group.
 	 */

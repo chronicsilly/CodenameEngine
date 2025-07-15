@@ -17,7 +17,6 @@ class IconOption extends TextOption {
 		iconSpr.setUnstretchedGraphicSize(150, 150, true);
 		iconSpr.updateHitbox();
 		iconSpr.sprTracker = __text;
-		iconSpr.sprTrackerAlignment = LEFT;
 		add(iconSpr);
 	}
 }

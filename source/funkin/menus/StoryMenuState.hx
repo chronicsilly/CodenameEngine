@@ -363,7 +363,7 @@ class StoryMenuState extends MusicBeatState {
 	}
 
 	public function selectWeek() {
-		var event = event("onWeekSelect", EventManager.get(WeekSelectEvent).recycle(weeks[curWeek], weeks[curWeek].difficulties[curDifficulty], curWeek, curDifficulty));
+		var event = null; // event("onWeekSelect", EventManager.get(WeekSelectEvent).recycle(weeks[curWeek], weeks[curWeek].difficulties[curDifficulty], curWeek, curDifficulty));
 		if (event.cancelled) return;
 
 		canSelect = false;

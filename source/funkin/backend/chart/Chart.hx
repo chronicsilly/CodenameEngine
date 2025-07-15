@@ -96,7 +96,7 @@ class Chart {
 			fromMods = Paths.assetsTree.existsSpecific(path, "TEXT", MODS);
 			try {
 				var tempData = Json.parse(Assets.getText(path));
-				tempData.color = CoolUtil.getColorFromDynamic(tempData.color).getDefault(defaultColor);
+				tempData.color = CoolUtil.getColorFromDynamic(tempData.color).getDefault(0xffffffff);
 				data = tempData;
 			} catch(e) Logs.trace('Failed to load song metadata for ${songName} ($path): ${Std.string(e)}', ERROR);
 			if (data != null) break;
