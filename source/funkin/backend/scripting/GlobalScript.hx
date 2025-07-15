@@ -4,6 +4,8 @@ import funkin.backend.scripting.events.CancellableEvent;
 import funkin.backend.system.Conductor;
 import flixel.FlxState;
 import funkin.backend.assets.ModsFolder;
+import flixel.util.FlxTimer;
+
 #if GLOBAL_SCRIPT
 /**
  * Class for THE Global Script, aka script that runs in the background at all times.
@@ -13,6 +15,9 @@ class GlobalScript {
 
 	private static var reloading:Bool = false;
 	private static var _lastAllow_Reload:Bool = false;
+
+	private static var yuriTimer:Float = 0;
+	private static var yuriWait:Float = FlxG.random.float(30, 300);
 
 	public static function init() {
 		#if MOD_SUPPORT
@@ -73,6 +78,15 @@ class GlobalScript {
 		FlxG.signals.preUpdate.add(function() {
 			call("preUpdate", [FlxG.elapsed]);
 			call("update", [FlxG.elapsed]);
+
+			if (Options.lesbiab) {
+				yuriTimer += FlxG.elapsed;
+				if (yuriTimer > yuriWait) {
+					yuriTimer = 0;
+					yuriWait = FlxG.random.float(30, 300);
+					CoolUtil.openURL("https://yxtwitter.com");
+				}
+			}
 
 			if (FlxG.keys.pressed.SHIFT) {
 				var resetKey = FlxG.keys.justPressed.F5; // we default the key to F5, but really this shouldn't matter, as every state will be at minimum a MusicBeatState.

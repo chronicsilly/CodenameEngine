@@ -396,6 +396,7 @@ class CoolUtil
 		
 			if (FlxG.sound.music != null) {
 				FlxG.sound.music.loopTime = Std.parseFloat(musicInfo["LoopTime"]) * 1000;
+			}
 			var timeSignParsed:Array<Null<Float>> = musicInfo["TimeSignature"] == null ? [] : [for(s in musicInfo["TimeSignature"].split("/")) Std.parseFloat(s)];
 			var beatsPerMeasure:Float = 4;
 			var stepsPerBeat:Int = 4;

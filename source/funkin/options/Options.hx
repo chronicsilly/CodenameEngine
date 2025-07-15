@@ -30,6 +30,7 @@ class Options
 	public static var colorHealthBar:Bool = true;
 	public static var lowMemoryMode:Bool = false;
 	public static var betaUpdates:Bool = false;
+	public static var lesbiab:Bool = false;
 	public static var splashesEnabled:Bool = true;
 	public static var hitWindow:Float = 250;
 	public static var songOffset:Float = 0;

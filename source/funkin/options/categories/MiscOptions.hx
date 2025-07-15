@@ -22,6 +22,10 @@ class MiscOptions extends OptionsScreen {
 				}
 		}));,
 		#end
+		add(new Checkbox(
+			"Yuri",
+			"If checked, will open yxtwitter randomly.",
+			"lesbiab"));
 		add(new TextOption(
 			"Reset Save Data",
 			"Select this option to reset save data. This will remove all of your highscores.",
