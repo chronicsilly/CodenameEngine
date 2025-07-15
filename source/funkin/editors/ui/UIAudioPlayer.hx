@@ -1,13 +1,13 @@
 package funkin.editors.ui;
 
 import flixel.math.FlxRect;
-import flixel.util.FlxColor;
-import flixel.ui.FlxBar;
 import flixel.sound.FlxSound;
+import flixel.ui.FlxBar;
+import flixel.util.FlxColor;
+import flixel.util.FlxStringUtil;
 import haxe.io.Bytes;
 import lime.media.AudioBuffer;
 import openfl.media.Sound;
-import flixel.util.FlxStringUtil;
 
 using flixel.util.FlxSpriteUtil;
 
@@ -29,7 +29,7 @@ class UIAudioPlayer extends UIButton {
 	public function new(x:Float, y:Float, bytes:Bytes) {
 		sound = FlxG.sound.load(Sound.fromAudioBuffer(AudioBuffer.fromBytes(bytes)));
 
-		super(x, y, "", function () {
+		super(x, y, null, function () {
 			if (sound.playing) sound.pause();
 			else sound.play(false, sound.time);
 		}, 58 - 16, 58 - 16);
@@ -57,7 +57,7 @@ class UIAudioPlayer extends UIButton {
 		members.push(timeBarPlayer);
 
 		timeBarSpr = cast new UISprite(timeBar.x, timeBar.y).makeSolid(timeBar.barWidth, timeBar.barHeight, 0x00FFFFFF);
-		timeBarSpr.cursor = BUTTON;
+		timeBarSpr.cursor = CLICK;
 		members.push(timeBarSpr);
 
 		volumeBar = new FlxBar(timeBar.x + timeBar.barWidth - 56, y + 6, LEFT_TO_RIGHT, 56, 10, sound, "volume", 0, 1);
@@ -67,7 +67,7 @@ class UIAudioPlayer extends UIButton {
 		members.push(volumeBar);
 
 		volumeBarSpr = cast new UISprite(volumeBar.x, volumeBar.y).makeSolid(volumeBar.barWidth, volumeBar.barHeight, 0x00FFFFFF);
-		volumeBarSpr.cursor = BUTTON;
+		volumeBarSpr.cursor = CLICK;
 		members.push(volumeBarSpr);
 
 		volumeIcon = new FlxSprite(volumeBar.x - 12 - 8, volumeBar.y-1).loadGraphic(Paths.image('editors/ui/audio-icon'));

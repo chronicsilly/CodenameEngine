@@ -1,10 +1,11 @@
 package funkin.options;
 
+import funkin.backend.system.framerate.Framerate;
+import funkin.options.TreeMenu;
+import funkin.options.categories.*;
+import funkin.options.type.*;
 import funkin.options.type.Checkbox;
 import haxe.xml.Access;
-import funkin.options.type.*;
-import funkin.options.categories.*;
-import funkin.options.TreeMenu;
 
 class OptionsMenu extends TreeMenu {
 	public static var mainOptions:Array<OptionCategory> = [

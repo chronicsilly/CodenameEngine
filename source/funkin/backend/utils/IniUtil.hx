@@ -1,10 +1,9 @@
 package funkin.backend.utils;
 
-
 /**
- * DOESNT SUPPORT CATEGORIES YET!!
+ * DOESN'T SUPPORT CATEGORIES YET!!
  */
-class IniUtil {
+final class IniUtil {
 	public static inline function parseAsset(assetPath:String, ?defaultVariables:Map<String, String>)
 		return parseString(Assets.getText(assetPath), defaultVariables);
 
@@ -27,7 +26,7 @@ class IniUtil {
 			var name = line.substr(0, index).trim();
 			var value = line.substr(index+1).trim();
 
-			if (value.startsWith("\"") && value.endsWith("\""))
+			if (value.length > 1 && value.charCodeAt(0) == '"'.code && value.charCodeAt(value.length-1) == '"'.code)
 				value = value.substr(1, value.length - 2);
 
 			if (value.length == 0 || name.length == 0)

@@ -2,12 +2,11 @@ package funkin.editors.charter;
 
 import flixel.text.FlxText.FlxTextFormat;
 import flixel.text.FlxText.FlxTextFormatMarkerPair;
+import funkin.backend.chart.ChartData;
 import funkin.backend.shaders.CustomShader;
 import funkin.game.Character;
-import funkin.game.Stage;
 import funkin.game.HealthIcon;
-import funkin.backend.chart.ChartData;
-import haxe.io.Bytes;
+import funkin.game.Stage;
 
 class ChartCreationScreen extends UISubstateWindow {
 	private var onSave:(String, ChartData) -> Void = null;
@@ -62,19 +61,19 @@ class ChartCreationScreen extends UISubstateWindow {
 		scrollSpeedTextBox.onChange = function (text:String) {
 			@:privateAccess scrollSpeedTextBox.__onChange(text);
 			for (button in strumLineList.buttons.members)
-				if (button.usesChartscrollSpeed.checked)
+				if (button.usesChartScrollSpeed.checked)
 					button.scrollSpeedStepper.value = scrollSpeedTextBox.value;
 		}
 		add(scrollSpeedTextBox);
 		addLabelOn(scrollSpeedTextBox, "Scroll Speed");
 
-		strumLineList = new UIButtonList<StrumLineButton>(difficultyNameTextBox.x, difficultyNameTextBox.y+difficultyNameTextBox.bHeight+36, 620, (552-179)-16, "", FlxPoint.get(620, 246), null, 6);
+		strumLineList = new UIButtonList<StrumLineButton>(difficultyNameTextBox.x, difficultyNameTextBox.y+difficultyNameTextBox.bHeight+36, 620, (552-179)-16, null, FlxPoint.get(620, 246), null, 6);
 		strumLineList.frames = Paths.getFrames('editors/ui/inputbox');
 		strumLineList.cameraSpacing = 0;
 
 		strumLineList.addButton.callback = function() {
 			strumLineList.add(new StrumLineButton(strumLineList.buttons.length, {
-				characters: ["dad"],
+				characters: [Flags.DEFAULT_OPPONENT],
 				type: 0,
 				notes: null,
 				position: "DAD",
@@ -85,7 +84,7 @@ class ChartCreationScreen extends UISubstateWindow {
 
 		// DEFAULTS
 		strumLineList.add(new StrumLineButton(0, {
-			characters: ["dad"],
+			characters: [Flags.DEFAULT_OPPONENT],
 			type: 0,
 			notes: null,
 			position: "DAD",
@@ -94,7 +93,7 @@ class ChartCreationScreen extends UISubstateWindow {
 			scrollSpeed: 1,
 		}, strumLineList));
 		strumLineList.add(new StrumLineButton(1, {
-			characters: ["bf"],
+			characters: [Flags.DEFAULT_CHARACTER],
 			type: 1,
 			notes: null,
 			position: "BOYFRIEND",
@@ -103,7 +102,7 @@ class ChartCreationScreen extends UISubstateWindow {
 			scrollSpeed: 1,
 		}, strumLineList));
 		strumLineList.add(new StrumLineButton(2, {
-			characters: ["gf"],
+			characters: [Flags.DEFAULT_GIRLFRIEND],
 			type: 2,
 			notes: null,
 			position: "GIRLFRIEND",
@@ -145,11 +144,10 @@ class ChartCreationScreen extends UISubstateWindow {
 
 		var strumLines:Array<ChartStrumLine> = [];
 		for (strline in strumLineList.buttons.members) {
-			for (stepper in [strline.hudXStepper, strline.hudYStepper, strline.hudScaleStepper])
-				@:privateAccess stepper.__onChange(stepper.label.text);
+			UIUtil.confirmUISelections(strline);
 
 			strumLines.push({
-				characters: [for (charb in strline.charactersList.buttons.members) charb.textBox.label.text],
+				characters: [for (char in strline.charactersList.buttons.members) char.textBox.label.text],
 				type: strline.typeDropdown.index,
 				notes: [],
 				position: strline.stagePositionDropdown.label.text.toLowerCase(),
@@ -157,7 +155,7 @@ class ChartCreationScreen extends UISubstateWindow {
 				strumPos: [0, strline.hudYStepper.value],
 				strumLinePos: strline.hudXStepper.value,
 				strumScale: strline.hudScaleStepper.value,
-				scrollSpeed: strline.usesChartscrollSpeed.checked ? strline.scrollSpeedStepper.value : null
+				scrollSpeed: strline.usesChartScrollSpeed.checked ? strline.scrollSpeedStepper.value : null
 			});
 		}
 
@@ -186,7 +184,7 @@ class StrumLineButton extends UIButton {
 	public var hudYStepper:UINumericStepper;
 	public var visibleCheckbox:UICheckbox;
 	public var scrollSpeedStepper:UINumericStepper;
-	public var usesChartscrollSpeed:UICheckbox;
+	public var usesChartScrollSpeed:UICheckbox;
 
 	public var deleteButton:UIButton;
 	public var deleteIcon:FlxSprite;
@@ -208,7 +206,7 @@ class StrumLineButton extends UIButton {
 			return uiText;
 		}
 
-		charactersList = new UIButtonList<CompactCharacterButton>(16, 8+26, 210, 160, "", FlxPoint.get(200, 40), null, 5);
+		charactersList = new UIButtonList<CompactCharacterButton>(16, 8+26, 210, 160, null, FlxPoint.get(200, 40), null, 5);
 		charactersList.frames = Paths.getFrames('editors/ui/inputbox');
 		charactersList.cameraSpacing = 0;
 
@@ -261,17 +259,17 @@ class StrumLineButton extends UIButton {
 		members.push(scrollSpeedStepper);
 		addLabelOn(scrollSpeedStepper, "Scroll Speed");
 
-		usesChartscrollSpeed = new UICheckbox(scrollSpeedStepper.x + 104, typeDropdown.y + 135, "Uses charts scroll speed?", strumLine.scrollSpeed == null);
-		usesChartscrollSpeed.onChecked = function(b) {
+		usesChartScrollSpeed = new UICheckbox(scrollSpeedStepper.x + 104, typeDropdown.y + 135, "Uses charts scroll speed?", strumLine.scrollSpeed == null);
+		usesChartScrollSpeed.onChecked = function(b) {
 			if(b) {
 				scrollSpeedStepper.value = subState.scrollSpeedTextBox.value;
 				scrollSpeedStepper.selectable = false;
 			} else
 				scrollSpeedStepper.selectable = true;
 		}
-		members.push(usesChartscrollSpeed);
+		members.push(usesChartScrollSpeed);
 
-		deleteButton = new UIButton(16, 246-32-11, "", function () {
+		deleteButton = new UIButton(16, 246-32-11, null, function () {
 			parent.remove(this);
 		}, 620-32);
 		deleteButton.color = 0xFFFF0000;
@@ -294,7 +292,7 @@ class StrumLineButton extends UIButton {
 		hudYStepper.follow(this, hudXStepper.x + 84 - 32 + 26, 8+26 + 64);
 		visibleCheckbox.follow(this, hudYStepper.x + hudYStepper.bWidth + 42, 8+26 + 64 + 9);
 		scrollSpeedStepper.follow(this, typeDropdown.x, 8+26 + 128);
-		usesChartscrollSpeed.follow(this, scrollSpeedStepper.x + 104, 8+26 + 135);
+		usesChartScrollSpeed.follow(this, scrollSpeedStepper.x + 104, 8+26 + 135);
 
 		deleteButton.follow(this, 16, 246-32-11);
 		deleteIcon.follow(this, 16 + ((deleteButton.bWidth/2)-(15/2)), (246-32-11) + ((deleteButton.bHeight/2)-(16/2)));
@@ -316,12 +314,11 @@ class CompactCharacterButton extends UIButton {
 	public var deleteIcon:FlxSprite;
 
 	public function new(char:String, charsList:Array<String>, parent:UIButtonList<CompactCharacterButton>) {
-		super(0, 0, "", null, 200, 40);
+		super(0, 0, null, null, 200, 40);
 		autoAlpha = false;
 
 		charIcon = new HealthIcon(funkin.game.Character.getIconFromCharName(char));
-		var size = Std.int(150 * 0.2);
-		charIcon.setUnstretchedGraphicSize(size, size, true);
+		charIcon.scale.set(0.2, 0.2);
 		charIcon.updateHitbox();
 		charIcon.setPosition(10, bHeight/2 - charIcon.height / 2);
 		charIcon.scrollFactor.set(1,1);
@@ -333,13 +330,14 @@ class CompactCharacterButton extends UIButton {
 		textBox.antialiasing = true;
 		textBox.onChange = function(char:String) {
 			char = funkin.game.Character.getIconFromCharName(char);
-			charIcon.setIcon(char);
-			charIcon.setUnstretchedGraphicSize(size, size, true);
+			var image = Paths.image("icons/" + char);
+			if(!Assets.exists(image))
+				image = Paths.image("icons/" + Flags.DEFAULT_HEALTH_ICON);
+			charIcon.loadGraphic(image, true, 150, 150);
 			charIcon.updateHitbox();
-			charIcon.setPosition(10, bHeight/2 - charIcon.height / 2);
 		}
 
-		deleteButton = new UIButton(textBox.x + 115 + 16, bHeight/2 - (32/2), "", function () {
+		deleteButton = new UIButton(textBox.x + 115 + 16, bHeight/2 - (32/2), null, function () {
 			parent.remove(this);
 		}, 32);
 		deleteButton.color = 0xFFFF0000;

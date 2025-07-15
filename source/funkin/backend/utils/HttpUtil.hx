@@ -2,9 +2,9 @@ package funkin.backend.utils;
 
 import haxe.Http;
 
-class HttpUtil
+final class HttpUtil
 {
-	public static var userAgent:String = "request";
+	public static var userAgent:String = Flags.USER_AGENT;
 	public static function requestText(url:String)
 	{
 		var r = null;

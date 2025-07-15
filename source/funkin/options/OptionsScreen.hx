@@ -36,7 +36,7 @@ class OptionsScreen extends FlxTypedSpriteGroup<OptionType> {
 
 			option.selected = false;
 			option.y = __firstFrame ? y : CoolUtil.fpsLerp(option.y, y, 0.25);
-			option.x = x + (-50 + (Math.abs(Math.cos((option.y + (optionHeight / 2) - (FlxG.camera.scroll.y + (FlxG.height / 2))) / (FlxG.height * 1.25) * Math.PI)) * 150));
+			option.x = x + (-50 + (Math.abs(Math.cos((option.y + (optionHeight / 2) - (FlxG.camera.scroll.y + (FlxG.camera.height / 2))) / (FlxG.camera.height * 1.25) * Math.PI)) * 150));
 		}
 		if (__firstFrame) {
 			__firstFrame = false;

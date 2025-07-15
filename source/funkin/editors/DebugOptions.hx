@@ -1,9 +1,9 @@
 package funkin.editors;
 
-import funkin.options.type.*;
+import funkin.backend.utils.NativeAPI;
 import funkin.options.OptionsScreen;
 import funkin.options.TreeMenu;
-import funkin.backend.utils.NativeAPI;
+import funkin.options.type.*;
 
 class DebugOptions extends TreeMenu {
 	public override function create() {
@@ -36,12 +36,16 @@ class DebugOptionsScreen extends OptionsScreen {
 			}));
 		#end
 		add(new Checkbox(
+			"Resizable Editors",
+			"If checked, this will allow the editors to render beyond the base 1280x720 resolution of FNF (allowing for more detail and space...)",
+			"editorsResizable"));
+		add(new Checkbox(
 			"Editor SFXs",
-			"If checked, will play sound effects when working on editors (ex: will play sfxs when checking checkboxes...)",
+			"If checked, will play sound effects when working on editors (ex: will play SFXs when checking checkboxes...)",
 			"editorSFX"));
 		add(new Checkbox(
 			"Pretty Print",
-			"If checked, the saved files from the editor will be formatted to be easily viewable (does not apply to xmls...)",
+			"If checked, the saved files from the editor will be formatted to be easily viewable (does not apply to XMLs...)",
 			"editorPrettyPrint"));
 		add(new Checkbox(
 			"Intensive Blur",
@@ -65,7 +69,7 @@ class DebugOptionsScreen extends OptionsScreen {
 		));
 		add(new Checkbox(
 			"Autosaves Folder",
-			"If checked, this will autosave your file in a seperate folder with a time stamp instead of overriding your current file. (song/autosaves/)",
-			"charterAutoSavesSeperateFolder"));
+			"If checked, this will autosave your file in a separate folder with a time stamp instead of overriding your current file. (song/autosaves/)",
+			"charterAutoSavesSeparateFolder"));
 	}
 }

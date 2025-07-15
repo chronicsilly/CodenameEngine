@@ -26,7 +26,7 @@ class CharterNoteTypesList extends UISubstateWindow {
 		var noteTypesFileList = getNoteTypesList(true);
 		if (noteTypesFileList.length == 0) noteTypesFileList = getNoteTypesList(false);
 
-		noteTypesList = new UIButtonList<NoteTypeButton>(20, title.y + title.height + 10, winWidth - 40, 342 - 85 - 16, "", FlxPoint.get(winWidth - 40, (342 - 85 - 16)/4), null, 0);
+		noteTypesList = new UIButtonList<NoteTypeButton>(20, title.y + title.height + 10, winWidth - 40, 342 - 85 - 16, null, FlxPoint.get(winWidth - 40, (342 - 85 - 16)/4), null, 0);
 		noteTypesList.addButton.callback = () -> noteTypesList.add(new NoteTypeButton(0, 0, 'Note Type ${noteTypesList.buttons.members.length}', noteTypesList.buttons.members.length, noteTypesFileList, noteTypesList));
 		noteTypesList.cameraSpacing = 0; noteTypesList.dragCallback = (object:NoteTypeButton, oldIndex:Int, newIndex:Int) -> {object.IDText.text = '${newIndex}.';};
 		for (i=>noteType in Charter.instance.noteTypes)
@@ -52,7 +52,7 @@ class CharterNoteTypesList extends UISubstateWindow {
 		var list:Array<String> = [];
 		for (path in Paths.getFolderContent(pathString, true, mods ? MODS : BOTH)) if(Path.extension(path) == "hx") {
 				var file:String = Path.withoutDirectory(path);
-				if (!list.contains(file)) list.push(file);
+				list.pushOnce(file);
 			}
 
 		return list;
@@ -91,7 +91,7 @@ class NoteTypeButton extends UIButton {
 		};
 		textBox.antialiasing = true;
 
-		deleteButton = new UIButton(textBox.x + textBox.label.width + 10, textBox.y, "", function () {
+		deleteButton = new UIButton(textBox.x + textBox.label.width + 10, textBox.y, null, function () {
 			parent.remove(this);
 		}, 32);
 		deleteButton.color = 0xFFFF0000;

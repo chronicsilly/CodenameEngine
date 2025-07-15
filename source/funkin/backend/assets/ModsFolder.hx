@@ -1,24 +1,16 @@
 package funkin.backend.assets;
 
+import flixel.util.FlxSignal.FlxTypedSignal;
 import funkin.backend.system.MainState;
-import funkin.menus.TitleState;
-import funkin.backend.system.Main;
-import openfl.utils.AssetCache;
-import flixel.util.FlxSignal.FlxTypedSignal;
-import openfl.utils.AssetManifest;
-import openfl.utils.AssetLibrary;
-import flixel.graphics.FlxGraphic;
-import flixel.util.FlxSignal.FlxTypedSignal;
-
+import haxe.io.Path;
 import lime.text.Font;
 import openfl.text.Font as OpenFLFont;
+import openfl.utils.AssetLibrary;
+import openfl.utils.AssetManifest;
 
 #if MOD_SUPPORT
 import sys.FileSystem;
 #end
-
-import flixel.FlxState;
-import haxe.io.Path;
 
 using StringTools;
 
@@ -50,8 +42,9 @@ class ModsFolder {
 	 * Whenever its the first time mods has been reloaded.
 	 */
 	private static var __firstTime:Bool = true;
+
 	/**
-	 * Initialises `mods` folder.
+	 * Initializes `mods` folder.
 	 */
 	public static function init() {
 		if(!getModsList().contains(Options.lastLoadedMod))
@@ -99,7 +92,7 @@ class ModsFolder {
 			return mods;
 
 		for (modFolder in modsList) {
-			if (FileSystem.isDirectory('${modsPath}${modFolder}')) {
+			if (FileSystem.isDirectory(modsPath + modFolder)) {
 				mods.push(modFolder);
 			} else {
 				var ext = Path.extension(modFolder).toLowerCase();

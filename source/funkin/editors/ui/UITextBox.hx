@@ -1,8 +1,8 @@
 package funkin.editors.ui;
 
 import flixel.math.FlxPoint;
-import lime.ui.KeyModifier;
 import lime.ui.KeyCode;
+import lime.ui.KeyModifier;
 import openfl.desktop.Clipboard;
 import openfl.geom.Rectangle;
 
@@ -17,10 +17,10 @@ class UITextBox extends UISliceSprite implements IUIFocusable {
 
 	var __wasFocused:Bool = false;
 
-	public function new(x:Float, y:Float, text:String = "", width:Int = 320, height:Int = 32, multiline:Bool = false) {
-		super(x, y, width, height, 'editors/ui/inputbox');
+	public function new(x:Float, y:Float, text:String = "", width:Int = 320, height:Int = 32, multiline:Bool = false, small:Bool = false) {
+		super(x, y, width, height, 'editors/ui/inputbox${small ? "-small" : ""}');
 
-		label = new UIText(0, 0, width, text);
+		label = new UIText(0, 0, width, text, small ? 12 : 15);
 		members.push(label);
 
 		caretSpr = new FlxSprite(0, 0);

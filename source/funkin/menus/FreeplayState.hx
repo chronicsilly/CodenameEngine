@@ -1,23 +1,21 @@
 package funkin.menus;
 
-import funkin.backend.chart.Chart;
-import funkin.backend.chart.ChartData.ChartMetaData;
-import funkin.backend.system.Conductor;
-import haxe.io.Path;
-import openfl.text.TextField;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
-import lime.utils.Assets;
+import funkin.backend.chart.Chart;
+import funkin.backend.chart.ChartData.ChartMetaData;
+import funkin.backend.scripting.events.menu.MenuChangeEvent;
+import funkin.backend.scripting.events.menu.freeplay.*;
+import funkin.backend.system.Conductor;
 import funkin.game.HealthIcon;
 import funkin.savedata.FunkinSave;
-import funkin.backend.scripting.events.*;
 
 using StringTools;
 
 class FreeplayState extends MusicBeatState
 {
 	/**
-	 * Array containing all of the songs metadatas
+	 * Array containing all of the songs' metadata.
 	 */
 	public var songs:Array<ChartMetaData> = [];
 
@@ -141,15 +139,13 @@ class FreeplayState extends MusicBeatState
 
 			var icon:HealthIcon = new HealthIcon(songs[i].icon);
 			icon.sprTracker = songText;
-			icon.setUnstretchedGraphicSize(150, 150, true);
-			icon.updateHitbox();
 
 			// using a FlxGroup is too much fuss!
 			iconArray.push(icon);
 			add(icon);
 
 			// songText.x += 40;
-			// DONT PUT X IN THE FIRST PARAMETER OF new ALPHABET() !!
+			// DON'T PUT X IN THE FIRST PARAMETER OF new ALPHABET() !!
 			// songText.screenCenter(X);
 		}
 
@@ -202,6 +198,10 @@ class FreeplayState extends MusicBeatState
 	 * Path to the currently playing song instrumental.
 	 */
 	public var curPlayingInst:String = null;
+	/**
+	 * If it should play the song automatically.
+	 */
+	public var autoplayShouldPlay:Bool = true;
 	#end
 
 	override function update(elapsed:Float)
@@ -227,14 +227,14 @@ class FreeplayState extends MusicBeatState
 		}
 
 		scoreText.text = "PERSONAL BEST:" + lerpScore;
-		scoreBG.scale.set(Math.max(Math.max(diffText.width, scoreText.width), coopText.width) + 8, (coopText.visible ? coopText.y + coopText.height : 66));
+		scoreBG.scale.set(MathUtil.maxSmart(diffText.width, scoreText.width, coopText.width) + 8, (coopText.visible ? coopText.y + coopText.height : 66));
 		scoreBG.updateHitbox();
 		scoreBG.x = FlxG.width - scoreBG.width;
 
 		scoreText.x = coopText.x = scoreBG.x + 4;
 		diffText.x = Std.int(scoreBG.x + ((scoreBG.width - diffText.width) / 2));
 
-		interpColor.fpsLerpTo(songs[curSelected].color, 0.0625);
+		interpColor.fpsLerpTo(songs[curSelected].parsedColor, 0.0625);
 		bg.color = interpColor.color;
 
 		#if PRELOAD_ALL
@@ -242,12 +242,20 @@ class FreeplayState extends MusicBeatState
 		autoplayElapsed += elapsed;
 		if (!disableAutoPlay && !songInstPlaying && (autoplayElapsed > timeUntilAutoplay || FlxG.keys.justPressed.SPACE)) {
 			if (curPlayingInst != (curPlayingInst = Paths.inst(songs[curSelected].name, songs[curSelected].difficulties[curDifficulty]))) {
-				var huh:Void->Void = function()
-				{
-					FlxG.sound.playMusic(curPlayingInst, 0);
-					Conductor.changeBPM(songs[curSelected].bpm, songs[curSelected].beatsPerMeasure, songs[curSelected].stepsPerBeat);
+				var huh:Void->Void = function() {
+					var soundPath = curPlayingInst;
+					var sound = null;
+					if (Assets.exists(soundPath, SOUND) || Assets.exists(soundPath, MUSIC))
+						sound = Assets.getSound(soundPath);
+					else
+						FlxG.log.error('Could not find a Sound asset with an ID of \'$soundPath\'.');
+
+					if (sound != null && autoplayShouldPlay) {
+						FlxG.sound.playMusic(sound, 0);
+						Conductor.changeBPM(songs[curSelected].bpm, songs[curSelected].beatsPerMeasure, songs[curSelected].stepsPerBeat);
+					}
 				}
-				if(!disableAsyncLoading) Main.execAsync(huh);
+				if (!disableAsyncLoading) Main.execAsync(huh);
 				else huh();
 			}
 			songInstPlaying = true;
@@ -277,12 +285,13 @@ class FreeplayState extends MusicBeatState
 	function updateCoopModes() {
 		__opponentMode = false;
 		__coopMode = false;
-		if (songs[curSelected].coopAllowed && songs[curSelected].opponentModeAllowed) {
+		var curSong = songs[curSelected];
+		if (curSong.coopAllowed && curSong.opponentModeAllowed) {
 			__opponentMode = curCoopMode % 2 == 1;
 			__coopMode = curCoopMode >= 2;
-		} else if (songs[curSelected].coopAllowed) {
+		} else if (curSong.coopAllowed) {
 			__coopMode = curCoopMode == 1;
-		} else if (songs[curSelected].opponentModeAllowed) {
+		} else if (curSong.opponentModeAllowed) {
 			__opponentMode = curCoopMode == 1;
 		}
 	}
@@ -299,6 +308,10 @@ class FreeplayState extends MusicBeatState
 
 		if (event.cancelled) return;
 
+		#if PRELOAD_ALL
+		autoplayShouldPlay = false;
+		#end
+
 		Options.freeplayLastSong = songs[curSelected].name;
 		Options.freeplayLastDifficulty = songs[curSelected].difficulties[curDifficulty];
 
@@ -307,9 +320,10 @@ class FreeplayState extends MusicBeatState
 	}
 
 	public function convertChart() {
-		trace('Converting ${songs[curSelected].name} (${songs[curSelected].difficulties[curDifficulty]}) to Codename format...');
-		var chart = Chart.parse(songs[curSelected].name, songs[curSelected].difficulties[curDifficulty]);
-		Chart.save('${Main.pathBack}assets/songs/${songs[curSelected].name}', chart, songs[curSelected].difficulties[curDifficulty].toLowerCase());
+		var curSong = songs[curSelected];
+		trace('Converting ${curSong.name} (${curSong.difficulties[curDifficulty]}) to Codename format...');
+		var chart = Chart.parse(curSong.name, curSong.difficulties[curDifficulty]);
+		Chart.save('${Main.pathBack}assets/songs/${curSong.name}', chart, curSong.difficulties[curDifficulty].toLowerCase());
 	}
 
 	/**
@@ -439,10 +453,16 @@ class FreeplaySonglist {
 
 	public function getSongsFromSource(source:funkin.backend.assets.AssetsLibraryList.AssetSource, useTxt:Bool = true) {
 		var path:String = Paths.txt('freeplaySonglist');
-		var songsFound:Array<String> = useTxt && Paths.assetsTree.existsSpecific(path, "TEXT", source) ? CoolUtil.coolTextFile(path) : Paths.getFolderDirectories('songs', false, source);
+		var songsFound:Array<String> = [];
+		if (useTxt && Paths.assetsTree.existsSpecific(path, "TEXT", source)) {
+			songsFound = CoolUtil.coolTextFile(Paths.txt('freeplaySonglist'));
+		} else {
+			songsFound = Paths.getFolderDirectories('songs', false, source);
+		}
 
 		if (songsFound.length > 0) {
-			for (s in songsFound) songs.push(Chart.loadChartMeta(s, "normal", source == MODS));
+			for(s in songsFound)
+				songs.push(Chart.loadChartMeta(s, Flags.DEFAULT_DIFFICULTY, source == MODS));
 			return false;
 		}
 		return true;
@@ -451,8 +471,17 @@ class FreeplaySonglist {
 	public static function get(useTxt:Bool = true) {
 		var songList = new FreeplaySonglist();
 
-		if (songList.getSongsFromSource(MODS, useTxt))
-			songList.getSongsFromSource(SOURCE, useTxt);
+		switch(Flags.SONGS_LIST_MOD_MODE) {
+			case 'prepend':
+				songList.getSongsFromSource(MODS, useTxt);
+				songList.getSongsFromSource(SOURCE, useTxt);
+			case 'append':
+				songList.getSongsFromSource(SOURCE, useTxt);
+				songList.getSongsFromSource(MODS, useTxt);
+			default /*case 'override'*/:
+				if (songList.getSongsFromSource(MODS, useTxt))
+					songList.getSongsFromSource(SOURCE, useTxt);
+		}
 
 		return songList;
 	}

@@ -1,5 +1,8 @@
 package funkin.options.type;
 
+/**
+ * Option type that allows you to select an array of options.
+**/
 class ArrayOption extends OptionType {
 	public var selectCallback:String->Void;
 
@@ -31,7 +34,7 @@ class ArrayOption extends OptionType {
 
 		var fieldValue = Reflect.field(parent, optionName);
 		if(fieldValue != null)
-			this.currentSelection = Std.int(Math.max(0, options.indexOf(fieldValue)));
+			this.currentSelection = CoolUtil.maxInt(0, options.indexOf(fieldValue));
 
 		this.optionName = optionName;
 

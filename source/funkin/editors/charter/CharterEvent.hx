@@ -1,12 +1,15 @@
 package funkin.editors.charter;
 
-import flixel.system.FlxAssets.FlxGraphicAsset;
-import funkin.editors.charter.Charter.ICharterSelectable;
+import openfl.geom.ColorTransform;
 import flixel.math.FlxPoint;
+import flixel.system.FlxAssets.FlxGraphicAsset;
+import funkin.backend.chart.ChartData.ChartEvent;
+import funkin.editors.charter.Charter.ICharterSelectable;
+import funkin.editors.charter.CharterBackdropGroup.EventBackdrop;
 import funkin.game.Character;
 import funkin.game.HealthIcon;
-import funkin.editors.charter.CharterBackdropGroup.EventBackdrop;
-import funkin.backend.chart.ChartData.ChartEvent;
+
+using flixel.util.FlxColorTransformUtil;
 
 class CharterEvent extends UISliceSprite implements ICharterSelectable {
 	public var events:Array<ChartEvent>;
@@ -19,30 +22,58 @@ class CharterEvent extends UISliceSprite implements ICharterSelectable {
 	public var eventsBackdrop:EventBackdrop;
 	public var snappedToGrid:Bool = true;
 
-	public function new(step:Float, ?events:Array<ChartEvent>) {
+	public var displayGlobal:Bool = false;
+	public var global(default, set):Bool = false;
+	private function set_global(val:Bool) {
+		for (event in events) event.global = val;
+		return global = val;
+	}
+
+	public function new(step:Float, ?events:Array<ChartEvent>, ?global:Bool) {
 		super(-100, (step * 40) - 17, 100, 34, 'editors/charter/event-spr');
 		this.step = step;
 		this.events = events.getDefault([]);
 
-		cursor = BUTTON;
+		this.global = displayGlobal = (global == null ? events[0] != null && events[0].global == true : global);
+		this.color = displayGlobal ? 0xffc8bd23 : 0xFFFFFFFF;
+
+		cursor = CLICK;
 	}
 
 	public override function update(elapsed:Float) {
 		super.update(elapsed);
 
-		if (snappedToGrid && eventsBackdrop != null)
-			x = eventsBackdrop.x + eventsBackdrop.width - (bWidth = 37 + (icons.length * 22));
+		if (snappedToGrid && eventsBackdrop != null) {
+			bWidth = 37 + (icons.length * 22);
+			x = eventsBackdrop.x + (global ? 0 : eventsBackdrop.width - bWidth);
+		}
 
 		for(k=>i in icons) {
 			i.follow(this, (k * 22) + 30 - (i.width / 2), (bHeight - i.height) / 2);
 		}
 
-		colorTransform.redMultiplier = colorTransform.greenMultiplier = colorTransform.blueMultiplier = selected ? 0.75 : 1;
-		colorTransform.redOffset = colorTransform.greenOffset = selected ? 96 : 0;
-		colorTransform.blueOffset = selected ? 168 : 0;
+		@:bypassAccessor color = CoolUtil.lerpColor(this.color, displayGlobal ? 0xffc8bd23 : 0xFFFFFFFF, 1/3);
+		colorTransform.setMultipliers(color.redFloat, color.greenFloat, color.blueFloat, alpha);
+		colorTransform.setOffsets(0, 0, 0, 0);
+		selectedColorTransform(colorTransform);
+		useColorTransform = true;
 
-		for (sprite in icons)
-			sprite.colorTransform = colorTransform;
+		for (sprite in icons) {
+			@:privateAccess sprite.colorTransform.__identity();
+			selectedColorTransform(sprite.colorTransform);
+		}
+
+		flipX = displayGlobal;
+	}
+
+	@:noCompletion private inline function selectedColorTransform(transform:ColorTransform) {
+		transform.redMultiplier *= selected ? 0.75 : 1;
+		transform.greenMultiplier *= selected ? 0.75 : 1;
+		transform.blueMultiplier *= selected ? 0.75 : 1;
+
+		transform.redOffset += selected ? 96 : 0;
+		transform.greenOffset += selected ? 96 : 0;
+		transform.blueOffset += selected ? 168 : 0;
 	}
 
 	private static function generateDefaultIcon(name:String) {
@@ -84,7 +115,7 @@ class CharterEvent extends UISliceSprite implements ICharterSelectable {
 				generateDefaultIcon(event.name);
 			case "Camera Movement":
 				// custom icon for camera movement
-				var state = cast(FlxG.state, Charter);
+				var state:Charter = cast FlxG.state;
 				if (event.params != null && event.params[0] != null && event.params[0] >= 0 && event.params[0] < state.strumLines.length) {
 					// camera movement, use health icon
 					var icon = Character.getIconFromCharName(state.strumLines.members[event.params[0]].strumLine.characters[0]);
@@ -111,7 +142,7 @@ class CharterEvent extends UISliceSprite implements ICharterSelectable {
 	}
 
 	public function handleDrag(change:FlxPoint) {
-		var newStep:Float = step = FlxMath.bound(step + change.x, 0, Charter.instance.__endStep-1);
+		var newStep:Float = step = CoolUtil.bound(step + change.x, 0, Charter.instance.__endStep-1);
 		y = ((newStep) * 40) - 17;
 	}
 
@@ -135,6 +166,7 @@ class CharterEvent extends UISliceSprite implements ICharterSelectable {
 				break;
 			}
 
-		x = (snappedToGrid && eventsBackdrop != null ? eventsBackdrop.x : 0) - (bWidth = 37 + (icons.length * 22));
+		bWidth = 37 + (icons.length * 22);
+		x = (snappedToGrid && eventsBackdrop != null && global ? eventsBackdrop.x - bWidth : (global ? 0 : -bWidth));
 	}
 }

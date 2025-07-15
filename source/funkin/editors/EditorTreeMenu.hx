@@ -1,7 +1,7 @@
 package funkin.editors;
 
-import funkin.menus.MainMenuState;
 import flixel.addons.display.FlxBackdrop;
+import funkin.menus.MainMenuState;
 import funkin.options.*;
 
 class EditorTreeMenu extends TreeMenu {
@@ -11,6 +11,8 @@ class EditorTreeMenu extends TreeMenu {
 
 	public override function create() {
 		super.create();
+
+		UIState.setResolutionAware();
 
 		FlxG.camera.fade(0xFF000000, 0.5, true);
 

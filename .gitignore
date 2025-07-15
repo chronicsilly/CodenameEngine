@@ -9,4 +9,6 @@ latest/windows/haxe/
 pages/
 docs/doc.xml
 mods/*
+addons/*
 !mods/readme.txt
+dev-libs/

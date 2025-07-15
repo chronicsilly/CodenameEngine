@@ -1,9 +1,13 @@
 package funkin.options;
 
-import openfl.Lib;
-import flixel.util.FlxSave;
 import flixel.input.keyboard.FlxKey;
+import flixel.util.FlxSave;
+import openfl.Lib;
 
+/**
+ * The save data of the engine.
+ * Mod save data is stored in `FlxG.save.data`.
+**/
 @:build(funkin.backend.system.macros.OptionsMacro.build())
 @:build(funkin.backend.system.macros.FunkinSaveMacro.build("__save", "__flush", "__load"))
 class Options
@@ -35,6 +39,9 @@ class Options
 	public static var songOffset:Float = 0;
 	public static var framerate:Int = 120;
 	public static var gpuOnlyBitmaps:Bool = #if (mac || web) false #else true #end; // causes issues on mac and web
+	#if MODCHARTING_FEATURES
+	public static var modchartingHoldSubdivisions:Int = 4;
+	#end
 
 	public static var lastLoadedMod:String = null;
 
@@ -44,6 +51,7 @@ class Options
 	public static var intensiveBlur:Bool = true;
 	public static var editorSFX:Bool = true;
 	public static var editorPrettyPrint:Bool = false;
+	public static var editorsResizable:Bool = true;
 	public static var maxUndos:Int = 120;
 
 	/**
@@ -51,7 +59,7 @@ class Options
 	 */
 	public static var freeplayLastSong:String = null;
 	public static var freeplayLastDifficulty:String = "normal";
-	public static var contributors:Array<funkin.backend.system.github.GitHubContributor> = [];
+	public static var contributors:Array<funkin.backend.system.github.GitHubContributor.CreditsGitHubContributor> = [];
 	public static var mainDevs:Array<Int> = [];  // IDs
 	public static var lastUpdated:Null<Float>;
 
@@ -62,11 +70,22 @@ class Options
 	public static var charterShowSections:Bool = true;
 	public static var charterShowBeats:Bool = true;
 	public static var charterEnablePlaytestScripts:Bool = true;
+	public static var charterRainbowWaveforms:Bool = false;
 	public static var charterLowDetailWaveforms:Bool = false;
 	public static var charterAutoSaves:Bool = true;
 	public static var charterAutoSaveTime:Float = 60*5;
 	public static var charterAutoSaveWarningTime:Float = 5;
-	public static var charterAutoSavesSeperateFolder:Bool = false;
+	public static var charterAutoSavesSeparateFolder:Bool = false;
+
+	/**
+	 * CHARACTER EDITOR
+	 */
+	public static var stageSelected:String = null;
+	public static var characterHitbox:Bool = true;
+	public static var characterCamera:Bool = true;
+	public static var characterAxis:Bool = true;
+	public static var characterDragging:Bool = true;
+	public static var playAnimOnOffset:Bool = false;
 
 	/**
 	* PLAYER 1 CONTROLS

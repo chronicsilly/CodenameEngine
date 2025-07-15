@@ -15,16 +15,19 @@ class KeybindSetting extends FlxTypedSpriteGroup<FlxSprite> {
 	public var p2Selected:Bool = false;
 	public var value:String;
 
+	public var custom:Bool = false;
+
 	public var option1:Null<FlxKey>;
 	public var option2:Null<FlxKey>;
-	public function new(x:Float, y:Float, name:String, value:String, ?sparrowIcon:String, ?sparrowAnim:String) {
+	public function new(x:Float, y:Float, name:String, value:String, ?sparrowIcon:String, ?sparrowAnim:String, ?custom:Bool = false) {
 		super();
 		this.value = value;
+		this.custom = custom;
 		title = new Alphabet(0, 0, name, true);
 		add(title);
 
-		var controlArrayP1:Array<FlxKey> = Reflect.field(Options, 'P1_${value}');
-		var controlArrayP2:Array<FlxKey> = Reflect.field(Options, 'P2_${value}');
+		var controlArrayP1:Array<FlxKey> = custom ? [Reflect.getProperty(FlxG.save.data, 'P1_${value}')] : Reflect.field(Options, 'P1_${value}');
+		var controlArrayP2:Array<FlxKey> = custom ? [Reflect.getProperty(FlxG.save.data, 'P2_${value}')] : Reflect.field(Options, 'P2_${value}');
 
 		option1 = controlArrayP1[0];
 		option2 = controlArrayP2[0];
@@ -76,19 +79,35 @@ class KeybindSetting extends FlxTypedSpriteGroup<FlxSprite> {
 		KeybindsOptions.instance.openSubState(new ChangeKeybindSubState(function(key:FlxKey) {
 			flicker.stop();
 			flicker.destroy();
-			if (p2)
-				Reflect.setField(Options, 'P2_$value', [option2 = key]);
-			else
-				Reflect.setField(Options, 'P1_$value', [option1 = key]);
+			if (!custom) {
+				if (p2)
+					Reflect.setField(Options, 'P2_$value', [option2 = key]);
+				else
+					Reflect.setField(Options, 'P1_$value', [option1 = key]);
+			} else {
+				if (p2)
+					Reflect.setProperty(FlxG.save.data, 'P2_$value', option2 = key);
+				else
+					Reflect.setProperty(FlxG.save.data, 'P1_$value', option1 = key);
+			}
+
 			updateText();
 			callback();
 		}, function() {
 			flicker.stop();
 			flicker.destroy();
-			if (p2)
-				Reflect.setField(Options, 'P2_$value', [option2 = 0]);
-			else
-				Reflect.setField(Options, 'P1_$value', [option1 = 0]);
+			if (!custom) {
+				if (p2)
+					Reflect.setField(Options, 'P2_$value', [option2 = 0]);
+				else
+					Reflect.setField(Options, 'P1_$value', [option1 = 0]);
+			} else {
+				if (p2)
+					Reflect.setProperty(FlxG.save.data, 'P2_$value', option2 = 0);
+				else
+					Reflect.setProperty(FlxG.save.data, 'P1_$value', option1 = 0);
+			}
+			updateText();
 			cancelCallback();
 		}));
 	}

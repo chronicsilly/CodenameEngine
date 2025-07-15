@@ -28,7 +28,7 @@
 	<!-- ____________________________ Window Settings ___________________________ -->
 
 	<!--These window settings apply to all targets-->
-	<window width="1280" height="720" fps="" background="#000000" hardware="true" vsync="false" />
+	<window width="1280" height="720" background="#000000" hardware="true" vsync="false" />
 
 	<!--HTML5-specific-->
 	<window if="html5" resizable="true" />
@@ -62,9 +62,11 @@
 	<section unless="TEST_BUILD">
 		<assets path="assets/"    rename="assets"	exclude="*.ogg" if="web"/>
 		<assets path="assets/"    rename="assets"	exclude="*.mp3" unless="web"/>
+
+		<!-- TODO: make it copy this manually, instead of using assets node, so it doesn't manually check for fonts -->
+		<assets path='mods' rename='mods' embed='false'/>
 	</section>
 
-	<assets path='mods' rename='mods' embed='false'/>
 	<assets path='art/readme.txt' rename='do NOT readme.txt' />
 
 	<!-- OpenAL config -->
@@ -75,7 +77,7 @@
 
 	<!-- ______________________________ Haxedefines _____________________________ -->
 
-	<haxeflag name="--macro" value="funkin.backend.system.macros.NewHaxeWarning.warn()" />
+	<haxeflag name="--macro" value="funkin.backend.system.macros.BuildInfo.printBuildInfo()" />
 
 	<haxedef name="FLX_NO_FOCUS_LOST_SCREEN" />
 
@@ -107,25 +109,28 @@
 
 	<!-- Comment this out to disable Discord RPC !-->
 	<section if="cpp">
-		<define name="DISCORD_RPC" if="desktop"/>
+		<!-- <define name="DISCORD_RPC" if="desktop"/> -->
 	</section>
+
+	<!-- Uncomment this to achive faster compile times, will strip extraneous and commonly unused features. -->
+	<define name="STRIPPED_COMPILE" unless="debug"/>
+
+	<!-- Comment this out to disable modcharting features -->
+	<define name="MODCHARTING_FEATURES" unless="STRIPPED_COMPILE" />
 
 	<!-- Comment this out to disable GitHub API integration !-->
 	<define name="GITHUB_API" unless="web || hl"/>
 
 	<!-- Comment this out to prevent unused classes from being compiled.
 		 Reduces compilation time at the cost of limited HScript flexibility. !-->
-	<define name="COMPILE_ALL_CLASSES" />
+	<define name="COMPILE_ALL_CLASSES" unless="STRIPPED_COMPILE" />
 
 	<!-- Comment this out to prevent extending classes in hscript.
 		 Reduces compilation time at the cost of limited HScript flexibility. !-->
-	<define name="CUSTOM_CLASSES" />
+	<define name="CUSTOM_CLASSES" unless="STRIPPED_COMPILE" />
 
 	<!-- Comment this out to disable multithreading !-->
 	<haxedef name="ALLOW_MULTITHREADING" unless="web || flash" />
-
-	<!-- Comment this out to disable titlescreen.xml !-->
-	<haxedef name="TITLESCREEN_XML" />
 
 	<!-- Comment this out to disable mods folder !-->
 	<haxedef name="MOD_SUPPORT" unless="web"/>
@@ -142,11 +147,14 @@
 	<!-- Comment this out to disable support for custom ndlls. !-->
 	<haxedef name="NDLLS_SUPPORTED" unless="web || iphonesim || hl" />
 
-	<!-- Comment this out to disable support for Away3D Flixel Intergration (reduces compile times)-->
-	<define name="THREE_D_SUPPORT" />
+	<!-- Comment this out to disable support for Away3D Flixel Integration (reduces compile times) !-->
+	<define name="THREE_D_SUPPORT" unless="STRIPPED_COMPILE" />
+
+	<!-- Comment this out to disable support for Funkin Audio Visualizer (reduces compile times) !-->
+	<define name="AUDIO_VIS_SUPPORT" unless="STRIPPED_COMPILE" />
 
 	<!-- Comment this out to disable support for Nape integration (flixel.addons.nape) (reduces compile times) !-->
-	<define name="NAPE_ENABLED" />
+	<define name="NAPE_ENABLED" unless="STRIPPED_COMPILE" />
 
 	<!-- Comment this out to disable video cutscene support, in case of compilation errors. !-->
 	<section if="cpp">
@@ -162,14 +170,14 @@
 	<!-- Disable a optimization, to allow reflection to use more functions -->
 	<define name="FLX_NO_GENERIC" />
 
+	<haxedef name="analyzer-optimize" unless="debug" />
+
 	<haxedef name="VIDEO_CUTSCENES" if="VIDEO_CUTSCENES" />
 	<haxedef name="UPDATE_CHECKING" if="UPDATE_CHECKING" />
 	<haxedef name="DISCORD_RPC" if="DISCORD_RPC" />
 	<haxedef name="SHOW_BUILD_ON_FPS" if="SHOW_BUILD_ON_FPS" />
 	<haxedef name="SOFTCODED_CLASSES" if="SOFTCODED_CLASSES" />
 	<haxedef name="openfl_dpi_aware" if="openfl_dpi_aware" />
-
-	<haxedef name="EXPERIMENTAL_FLXGRAPHIC_DESTROY_FIX" />
 
 	<!-- _______________________________ Libraries ______________________________ -->
 
@@ -185,6 +193,8 @@
 
 	<haxelib name="hxvlc" if="VIDEO_CUTSCENES" />
 	<haxelib name="away3d" if="THREE_D_SUPPORT" />
+	<haxelib name="funkin.vis" if="AUDIO_VIS_SUPPORT" />
+	<haxelib name="grig.audio" if="AUDIO_VIS_SUPPORT" />
 	<haxelib name="format" />
 	<haxelib name="flxanimate" />
 	<haxelib name="nape-haxe4" if="NAPE_ENABLED"/>
@@ -192,8 +202,17 @@
 	<haxelib name="hscript-improved" />
 	<haxelib name="hxdiscord_rpc" if="DISCORD_RPC"/>
 	<haxelib name="markdown" />
+	<haxelib name="hxcpp-debug-server" if="TEST_BUILD debug" />
 
 	<!-- _________________________________ Additional stuff _______________________________ -->
+
+	<section if="MODCHARTING_FEATURES">
+		<haxedef name="FM_ENGINE" value="CODENAME"/>
+		<haxedef name="FM_ENGINE_VERSION" value="1.0"/>
+
+		<haxelib name="funkin-modchart" />
+		<haxeflag name="--macro" value="modchart.core.macros.Macro.includeFiles()"/>
+	</section>
 
 	<section if="COMPILE_ALL_CLASSES">
 		<haxeflag name="-dce" value="no" />
@@ -211,4 +230,8 @@
 	<haxedef name="HXCPP_CATCH_SEGV" />
 
 	<haxedef name="hscriptPos" /> <!-- for logging -->
+
+	<!-- EXPERMENTAL FEATURES -->
+	<!-- <haxedef name="EXPERMENTAL_SCRIPT_RELOADING" /> -->
+	<haxedef name="EXPERIMENTAL_FLXGRAPHIC_DESTROY_FIX" />
 </project>

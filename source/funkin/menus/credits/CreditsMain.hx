@@ -1,8 +1,9 @@
 package funkin.menus.credits;
 
 import funkin.options.OptionsScreen;
-import funkin.options.type.*;
 import funkin.options.TreeMenu;
+import funkin.backend.system.github.GitHubContributor.CreditsGitHubContributor;
+import funkin.options.type.*;
 import haxe.xml.Access;
 import flixel.util.FlxColor;
 
@@ -27,7 +28,7 @@ class CreditsMain extends TreeMenu {
 				try {
 					access = new Access(Xml.parse(Paths.assetsTree.getSpecificAsset(xmlPath, "TEXT", source)));
 				} catch(e) {
-					Logs.trace('Error while parsing credits.xml: ${Std.string(e)}', ERROR);
+					Logs.trace('[CreditsMain] Error while parsing credits.xml: ${Std.string(e)}', ERROR);
 				}
 
 				if (access != null)
@@ -39,7 +40,7 @@ class CreditsMain extends TreeMenu {
 			optionsTree.add(Type.createInstance(CreditsCodename, []));
 		}));
 		items.push(new TextOption("Friday Night Funkin'", "Select this to open the itch.io page of the original game to donate!", function() {
-			CoolUtil.openURL("https://ninja-muffin24.itch.io/funkin");
+			CoolUtil.openURL(Flags.URL_FNF_ITCH);
 		}));
 
 		main = new OptionsScreen('Credits', 'The people who made this possible!', items);
@@ -51,7 +52,7 @@ class CreditsMain extends TreeMenu {
 	/**
 	 * XML STUFF
 	 */
-	public function parseCreditsFromXML(xml:Access, source:Bool):Array<OptionType> {
+	public function parseCreditsFromXML(xml:Access, source:funkin.backend.assets.AssetsLibraryList.AssetSource):Array<OptionType> {
 		var credsMenus:Array<OptionType> = [];
 
 		for(node in xml.elements) {
@@ -64,13 +65,14 @@ class CreditsMain extends TreeMenu {
 				}
 
 				var username = node.getAtt("user");
-				var user = {  // Kind of forcing
+				var user:CreditsGitHubContributor = {  // Kind of forcing
 					login: username,
 					html_url: 'https://github.com/$username',
 					avatar_url: 'https://github.com/$username.png'
 				};
 				var opt:GithubIconOption = new GithubIconOption(user, desc, null,
-					node.has.customName ? node.att.customName : null, node.has.size ? Std.parseInt(node.att.size) : 96,
+					node.has.customName ? node.att.customName : null,
+					node.has.size ? Std.parseInt(node.att.size) : 96,
 					node.has.portrait ? node.att.portrait.toLowerCase() == "false" ? false : true : true
 				);
 				if (node.has.color)

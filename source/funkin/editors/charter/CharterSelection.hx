@@ -1,6 +1,5 @@
 package funkin.editors.charter;
 
-import funkin.backend.chart.Chart;
 import funkin.backend.chart.ChartData.ChartMetaData;
 import funkin.backend.chart.ChartData;
 import funkin.backend.system.framerate.Framerate;
@@ -35,14 +34,14 @@ class CharterSelection extends EditorTreeMenu {
 							FlxG.switchState(new Charter(s.name, d));
 						})
 				];
-				list.push(new NewOption("New Difficulty", "New Difficulty", function() {
+				list.push(new NewOption("New Difficulty", "Press ACCEPT to create a new difficulty.", function() {
 					FlxG.state.openSubState(new ChartCreationScreen(saveChart));
 				}));
 				optionsTree.add(new OptionsScreen(s.name, "Select a difficulty to continue.", list));
-			}, s.color.getDefault(0xFFFFFFFF))
+			}, s.parsedColor.getDefault(0xFFFFFFFF))
 		];
 
-		list.insert(0, new NewOption("New Song", "New Song", function() {
+		list.insert(0, new NewOption("New Song", "Press ACCEPT to create a new song.", function() {
 			FlxG.state.openSubState(new SongCreationScreen(saveSong));
 		}));
 
@@ -90,10 +89,10 @@ class CharterSelection extends EditorTreeMenu {
 	}
 
 	public function saveSong(creation:SongCreationData) {
-		var songAlreadlyExsits:Bool = [for (s in freeplayList.songs) s.name.toLowerCase()].contains(creation.meta.name.toLowerCase());
+		var songAlreadyExists:Bool = [for (s in freeplayList.songs) s.name.toLowerCase()].contains(creation.meta.name.toLowerCase());
 
-		if (songAlreadlyExsits) {
-			openSubState(new UIWarningSubstate("Creating Song: Error!", "The song you are trying to create alreadly exists, if you would like to override it delete the song first!", [
+		if (songAlreadyExists) {
+			openSubState(new UIWarningSubstate("Creating Song: Error!", "The song you are trying to create already exists, if you would like to override it delete the song first!", [
 				{label: "Ok", color: 0xFFFF0000, onClick: function(t) {}}
 			]));
 			return;
@@ -110,9 +109,9 @@ class CharterSelection extends EditorTreeMenu {
 		sys.FileSystem.createDirectory('$songFolder/charts');
 
 		// Save Files
-		CoolUtil.safeSaveFile('$songFolder/meta.json', Chart.makeMetaSaveable(creation.meta));
-		if (creation.instBytes != null) sys.io.File.saveBytes('$songFolder/song/Inst.${Paths.SOUND_EXT}', creation.instBytes);
-		if (creation.voicesBytes != null) sys.io.File.saveBytes('$songFolder/song/Voices.${Paths.SOUND_EXT}', creation.voicesBytes);
+		CoolUtil.safeSaveFile('$songFolder/meta.json', Json.stringify(creation.meta, Flags.JSON_PRETTY_PRINT));
+		if (creation.instBytes != null) sys.io.File.saveBytes('$songFolder/song/Inst.${Flags.SOUND_EXT}', creation.instBytes);
+		if (creation.voicesBytes != null) sys.io.File.saveBytes('$songFolder/song/Voices.${Flags.SOUND_EXT}', creation.voicesBytes);
 		#end
 
 		var option = new EditorIconOption(creation.meta.name, "Press ACCEPT to choose a difficulty to edit.", creation.meta.icon, function() {
@@ -123,11 +122,11 @@ class CharterSelection extends EditorTreeMenu {
 						FlxG.switchState(new Charter(creation.meta.name, d));
 					})
 			];
-			list.push(new NewOption("New Difficulty", "New Difficulty", function() {
+			list.push(new NewOption("New Difficulty", "Press ACCEPT to create a new difficulty.", function() {
 				FlxG.state.openSubState(new ChartCreationScreen(saveChart));
 			}));
 			optionsTree.insert(1, new OptionsScreen(creation.meta.name, "Select a difficulty to continue.", list));
-		}, creation.meta.color.getDefault(0xFFFFFFFF));
+		}, creation.meta.parsedColor.getDefault(0xFFFFFFFF));
 
 		// Add to List
 		freeplayList.songs.insert(0, creation.meta);
@@ -135,10 +134,10 @@ class CharterSelection extends EditorTreeMenu {
 	}
 
 	public function saveChart(name:String, data:ChartData) {
-		var difficultyAlreadlyExsits:Bool = curSong.difficulties.contains(name);
+		var difficultyAlreadyExists:Bool = curSong.difficulties.contains(name);
 
-		if (difficultyAlreadlyExsits) {
-			openSubState(new UIWarningSubstate("Creating Chart: Error!", "The chart you are trying to create alreadly exists, if you would like to override it delete the chart first!", [
+		if (difficultyAlreadyExists) {
+			openSubState(new UIWarningSubstate("Creating Chart: Error!", "The chart you are trying to create already exists, if you would like to override it delete the chart first!", [
 				{label: "Ok", color: 0xFFFF0000, onClick: function(t) {}}
 			]));
 			return;
@@ -148,7 +147,7 @@ class CharterSelection extends EditorTreeMenu {
 		var songFolder:String = '${Paths.getAssetsRoot()}/songs/${curSong.name}';
 
 		// Save Files
-		CoolUtil.safeSaveFile('$songFolder/charts/${name}.json', Json.stringify(data, "\t"));
+		CoolUtil.safeSaveFile('$songFolder/charts/${name}.json', Json.stringify(data, Flags.JSON_PRETTY_PRINT));
 
 		// Add to List
 		curSong.difficulties.push(name);
@@ -161,7 +160,7 @@ class CharterSelection extends EditorTreeMenu {
 		var meta = Json.parse(sys.io.File.getContent('$songFolder/meta.json'));
 		if (meta.difficulties != null && !meta.difficulties.contains(name)) {
 			meta.difficulties.push(name);
-			CoolUtil.safeSaveFile('$songFolder/meta.json', Chart.makeMetaSaveable(meta));
+			CoolUtil.safeSaveFile('$songFolder/meta.json', Json.stringify(meta));
 		}
 	}
 }

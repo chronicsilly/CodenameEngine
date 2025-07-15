@@ -1,7 +1,5 @@
 package funkin.backend.utils;
 
-import lime.app.Application;
-
 /**
  * Small util that allows you to load any function from ndlls via `getFunction`.
  *
@@ -16,7 +14,7 @@ import lime.app.Application;
  * - The Function cannot be found in the NDLL
  * then an empty function will be returned instead, and a message will be shown in logs.
  */
-class NdllUtil {
+final class NdllUtil {
 	#if NDLLS_SUPPORTED
 		#if windows   public static final os:String = "windows";   #end
 		#if linux     public static final os:String = "linux";     #end
@@ -40,7 +38,7 @@ class NdllUtil {
 		return Reflect.makeVarArgs(function(a:Array<Dynamic>) {
 			// This generates horrific code
 			return funkin.backend.system.macros.Utils.generateReflectionLike(25, "func", "a");
-			//return Reflect.callMethod(null, func, a); // wouldnt work for some reason, maybe cause like c++ functions doesnt have reflection enabled
+			//return Reflect.callMethod(null, func, a); // wouldn't work for some reason, maybe cause like c++ functions doesn't have reflection enabled
 		});
 		#else
 		Logs.trace('NDLLs are not supported on this platform.', WARNING);

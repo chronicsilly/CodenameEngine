@@ -1,11 +1,10 @@
 package funkin.editors.charter;
 
+import flixel.group.FlxGroup;
 import flixel.text.FlxText.FlxTextFormat;
 import flixel.text.FlxText.FlxTextFormatMarkerPair;
-import flixel.group.FlxGroup;
 import funkin.backend.chart.ChartData.ChartMetaData;
 import haxe.io.Bytes;
-import funkin.game.HealthIcon;
 
 typedef SongCreationData = {
 	var meta:ChartMetaData;
@@ -20,17 +19,16 @@ class SongCreationScreen extends UISubstateWindow {
 	public var bpmStepper:UINumericStepper;
 	public var beatsPerMeasureStepper:UINumericStepper;
 	public var stepsPerBeatStepper :UINumericStepper;
-	public var needsVoicesCheckbox:UICheckbox;
 	public var instExplorer:UIFileExplorer;
 	public var voicesExplorer:UIFileExplorer;
 
 	public var displayNameTextBox:UITextBox;
 	public var iconTextBox:UITextBox;
-	public var iconSprite:HealthIcon;
+	public var iconSprite:FlxSprite;
 	public var opponentModeCheckbox:UICheckbox;
 	public var coopAllowedCheckbox:UICheckbox;
 	public var colorWheel:UIColorwheel;
-	public var difficulitesTextBox:UITextBox;
+	public var difficultiesTextBox:UITextBox;
 
 	public var backButton:UIButton;
 	public var saveButton:UIButton;
@@ -84,26 +82,8 @@ class SongCreationScreen extends UISubstateWindow {
 
 		var voicesUIText:UIText = null;
 
-		needsVoicesCheckbox = new UICheckbox(stepsPerBeatStepper.x + 80 + 26, stepsPerBeatStepper.y, "Voices", true);
-		needsVoicesCheckbox.onChecked = function(checked) {
-			if (voicesExplorer == null) return;
-
-			if(!checked) {
-				voicesExplorer.removeFile();
-				voicesExplorer.selectable = voicesExplorer.uploadButton.selectable = false;
-				voicesUIText.text = "Vocal Audio File";
-			} else {
-				voicesExplorer.selectable = voicesExplorer.uploadButton.selectable = true;
-				voicesUIText.applyMarkup(
-					"Vocal Audio File $* Required$",
-					[new FlxTextFormatMarkerPair(new FlxTextFormat(0xFFAD1212), "$")]);
-			}
-		}
-		songDataGroup.add(needsVoicesCheckbox);
-		addLabelOn(needsVoicesCheckbox, "Needs Voices");
-		needsVoicesCheckbox.y += 6; needsVoicesCheckbox.x += 4;
-
-		instExplorer = new UIFileExplorer(songNameTextBox.x, songNameTextBox.y + 32 + 36, null, null, Paths.SOUND_EXT, function (res) {
+		instExplorer = new UIFileExplorer(songNameTextBox.x, songNameTextBox.y + 32 + 36, null, null, Flags.SOUND_EXT, function (path, res) {
+			if (path == null || res == null) return;
 			var audioPlayer:UIAudioPlayer = new UIAudioPlayer(instExplorer.x + 8, instExplorer.y + 8, res);
 			instExplorer.members.push(audioPlayer);
 			instExplorer.uiElement = audioPlayer;
@@ -113,17 +93,14 @@ class SongCreationScreen extends UISubstateWindow {
 			"Inst Audio File $* Required$",
 			[new FlxTextFormatMarkerPair(new FlxTextFormat(0xFFAD1212), "$")]);
 
-		voicesExplorer = new UIFileExplorer(instExplorer.x + 320 + 26, instExplorer.y, null, null, Paths.SOUND_EXT, function (res) {
+		voicesExplorer = new UIFileExplorer(instExplorer.x + 320 + 26, instExplorer.y, null, null, Flags.SOUND_EXT, function (path, res) {
+			if (path == null || res == null) return;
 			var audioPlayer:UIAudioPlayer = new UIAudioPlayer(voicesExplorer.x + 8, voicesExplorer.y + 8, res);
 			voicesExplorer.members.push(audioPlayer);
 			voicesExplorer.uiElement = audioPlayer;
 		});
 		songDataGroup.add(voicesExplorer);
-
-		voicesUIText = addLabelOn(voicesExplorer, "Vocal Audio File");
-		voicesUIText.applyMarkup(
-			"Vocal Audio File $* Required$",
-			[new FlxTextFormatMarkerPair(new FlxTextFormat(0xFFAD1212), "$")]);
+		addLabelOn(voicesExplorer, "Vocal Audio File");
 
 		var menuTitle:UIText;
 		menuDataGroup.add(menuTitle = new UIText(windowSpr.x + 20, windowSpr.y + 30 + 16, 0, "Menus Data (Freeplay/Story)", 28));
@@ -150,9 +127,9 @@ class SongCreationScreen extends UISubstateWindow {
 		menuDataGroup.add(colorWheel);
 		addLabelOn(colorWheel, "Color");
 
-		difficulitesTextBox = new UITextBox(opponentModeCheckbox.x, opponentModeCheckbox.y + 6 + 32 + 26, "");
-		menuDataGroup.add(difficulitesTextBox);
-		addLabelOn(difficulitesTextBox, "Difficulties");
+		difficultiesTextBox = new UITextBox(opponentModeCheckbox.x, opponentModeCheckbox.y + 6 + 32 + 26, "");
+		menuDataGroup.add(difficultiesTextBox);
+		addLabelOn(difficultiesTextBox, "Difficulties");
 
 		for (checkbox in [opponentModeCheckbox, coopAllowedCheckbox])
 			{checkbox.y += 6; checkbox.x += 4;}
@@ -196,7 +173,7 @@ class SongCreationScreen extends UISubstateWindow {
 
 	public override function update(elapsed:Float) {
 		if (curPage == 0) {
-			if (instExplorer.file != null && (needsVoicesCheckbox.checked ? voicesExplorer.file != null : true))
+			if (instExplorer.file != null)
 				saveButton.selectable = true;
 			else saveButton.selectable = false;
 		} else
@@ -232,32 +209,39 @@ class SongCreationScreen extends UISubstateWindow {
 	}
 
 	function updateIcon(icon:String) {
-		if (iconSprite == null) menuDataGroup.add(iconSprite = new HealthIcon());
+		if (iconSprite == null) menuDataGroup.add(iconSprite = new FlxSprite());
 
-		iconSprite.setIcon(icon);
-		var size = Std.int(150 * 0.5);
-		iconSprite.setUnstretchedGraphicSize(size, size, true);
+		if (iconSprite.animation.exists(icon)) return;
+		@:privateAccess iconSprite.animation.clearAnimations();
+
+		var path:String = Paths.image('icons/$icon');
+		if (!Assets.exists(path)) path = Paths.image('icons/' + Flags.DEFAULT_HEALTH_ICON);
+
+		iconSprite.loadGraphic(path, true, 150, 150);
+		iconSprite.animation.add(icon, [0], 0, false);
+		iconSprite.antialiasing = true;
+		iconSprite.animation.play(icon);
+
+		iconSprite.scale.set(0.5, 0.5);
 		iconSprite.updateHitbox();
-		iconSprite.setPosition(iconTextBox.x + iconTextBox.bWidth + 8, iconTextBox.y + (iconTextBox.bHeight / 2) - (iconSprite.height / 2));
-		iconSprite.scrollFactor.set(1, 1);
+		iconSprite.setPosition(iconTextBox.x + 150 + 8, (iconTextBox.y + 16) - (iconSprite.height/2));
 	}
 
 	function saveSongInfo() {
-		for (stepper in [bpmStepper, beatsPerMeasureStepper, stepsPerBeatStepper])
-			@:privateAccess stepper.__onChange(stepper.label.text);
+		UIUtil.confirmUISelections(this);
 
 		var meta:ChartMetaData = {
 			name: songNameTextBox.label.text,
 			bpm: bpmStepper.value,
 			beatsPerMeasure: Std.int(beatsPerMeasureStepper.value),
 			stepsPerBeat: Std.int(stepsPerBeatStepper.value),
-			needsVoices: needsVoicesCheckbox.checked,
 			displayName: displayNameTextBox.label.text,
 			icon: iconTextBox.label.text,
-			color: colorWheel.curColor,
+			color: colorWheel.curColorString,
+			parsedColor: colorWheel.curColor,
 			opponentModeAllowed: opponentModeCheckbox.checked,
 			coopAllowed: coopAllowedCheckbox.checked,
-			difficulties: [for (diff in difficulitesTextBox.label.text.split(",")) diff.trim()],
+			difficulties: [for (diff in difficultiesTextBox.label.text.split(",")) diff.trim()],
 		};
 
 		if (onSave != null) onSave({

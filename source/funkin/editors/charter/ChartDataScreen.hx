@@ -1,9 +1,10 @@
 package funkin.editors.charter;
 
-import funkin.game.Stage;
-import funkin.backend.chart.ChartData;
 import flixel.math.FlxPoint;
 import funkin.backend.chart.ChartData.ChartMetaData;
+import funkin.backend.chart.ChartData;
+import funkin.game.Stage;
+import funkin.game.HudCamera;
 
 using StringTools;
 
@@ -14,6 +15,9 @@ class ChartDataScreen extends UISubstateWindow {
 
 	public var scrollSpeedStepper:UINumericStepper;
 	public var stageTextBox:UIAutoCompleteTextBox;
+
+	public var strumLineCam:HudCamera;
+	public var previewStrumLine:CharterPreviewStrumLine;
 
 	public function new(data:ChartData) {
 		super();
@@ -60,11 +64,19 @@ class ChartDataScreen extends UISubstateWindow {
 		add(closeButton);
 		closeButton.color = 0xFFFF0000;
 		closeButton.x -= closeButton.bWidth;
+
+		strumLineCam = new HudCamera();
+		strumLineCam.downscroll = Options.downscroll;
+		strumLineCam.bgColor = 0;
+		strumLineCam.alpha = 0;
+		FlxG.cameras.add(strumLineCam, false);
+		previewStrumLine = new CharterPreviewStrumLine(96, 50, 1, 1, 4, 0);
+		previewStrumLine.camera = strumLineCam;
+		add(previewStrumLine);
 	}
 
-	public function saveInfo()
-	{
-		@:privateAccess scrollSpeedStepper.__onChange(scrollSpeedStepper.label.text);
+	public function saveInfo() {
+		UIUtil.confirmUISelections(this);
 
 		var oldData:{stage:String, speed:Float} = {stage: PlayState.SONG.stage, speed: PlayState.SONG.scrollSpeed};
 
@@ -72,5 +84,20 @@ class ChartDataScreen extends UISubstateWindow {
 		PlayState.SONG.scrollSpeed = scrollSpeedStepper.value;
 
 		Charter.undos.addToUndo(CEditChartData(oldData, {stage: stageTextBox.label.text, speed: scrollSpeedStepper.value}));
+	}
+
+	override public function update(elapsed:Float) {
+		var scrollSpeed:Float = 0.0;
+		if (scrollSpeedStepper.hovered || scrollSpeedStepper.focused)
+			scrollSpeed = scrollSpeedStepper.value;
+
+		strumLineCam.alpha = CoolUtil.fpsLerp(strumLineCam.alpha, scrollSpeed == 0.0 ? 0.0 : 1.0, 0.2);
+		previewStrumLine.updatePos(96, 50, 1, 1, 4, scrollSpeed);
+
+		super.update(elapsed);
+	}
+	override public function destroy() {
+		super.destroy();
+		FlxG.cameras.remove(strumLineCam);
 	}
 }

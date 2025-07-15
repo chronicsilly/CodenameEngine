@@ -1,13 +1,14 @@
 package funkin.options.keybinds;
 
 import flixel.util.FlxColor;
-
+import haxe.xml.Access;
 using StringTools;
+
 
 class KeybindsOptions extends MusicBeatSubstate {
 	public static var instance:KeybindsOptions;
 
-	public var categories = [
+	public var categories:Array<ControlsCategory> = [
 		{
 			name: 'Notes',
 			settings: [
@@ -153,6 +154,9 @@ class KeybindsOptions extends MusicBeatSubstate {
 			FlxG.camera.follow(camFollow, LOCKON, 0.125);
 		}
 
+		var customCategories = loadCustomCategories();
+		for (i in customCategories) categories.push(i);
+
 		var k:Int = 0;
 		for(category in categories) {
 			k++;
@@ -178,8 +182,10 @@ class KeybindsOptions extends MusicBeatSubstate {
 					};
 					e.name = e.name.substring(5, e.name.length - 1);
 				}
+				if (e.sparrowIcon != null) sparrowIcon = e.sparrowIcon;
+				if (e.sparrowAnim != null) sparrowAnim = e.sparrowAnim;
 
-				var text = new KeybindSetting(100, k * 75, e.name, e.control, sparrowIcon, sparrowAnim);
+				var text = new KeybindSetting(100, k * 75, e.name, e.control, sparrowIcon, sparrowAnim, e.custom == null ? false : e.custom);
 				if (!isSubState)
 					text.bind1.color = text.bind2.color = FlxColor.BLACK;
 				alphabets.add(text);
@@ -229,7 +235,9 @@ class KeybindsOptions extends MusicBeatSubstate {
 					close();
 				else
 					FlxG.switchState(new OptionsMenu());
+				ControlsUtil.resetCustomControls();
 				Options.applyKeybinds();
+				ControlsUtil.loadCustomControls();
 				Options.save();
 				return;
 			}
@@ -273,9 +281,64 @@ class KeybindsOptions extends MusicBeatSubstate {
 			var minH = FlxG.height / 2;
 			var maxH = alphabets.members[alphabets.length-1].y + alphabets.members[alphabets.length-1].height - (FlxG.height / 2);
 			if (minH < maxH)
-				camFollow.setPosition(FlxG.width / 2, FlxMath.bound(alphabet.y + (alphabet.height / 2) - (35), minH, maxH));
+				camFollow.setPosition(FlxG.width / 2, CoolUtil.bound(alphabet.y + (alphabet.height / 2) - (35), minH, maxH));
 			else
 				camFollow.setPosition(FlxG.width / 2, FlxG.height / 2);
 		}
 	}
+
+	public function loadCustomCategories() {
+		var customCategories:Array<ControlsCategory> = [];
+
+		var xmlPath = Paths.xml("config/controls");
+		for(source in [funkin.backend.assets.AssetsLibraryList.AssetSource.SOURCE, funkin.backend.assets.AssetsLibraryList.AssetSource.MODS]) {
+			if (Paths.assetsTree.existsSpecific(xmlPath, "TEXT", source)) {
+				var access:Access = null;
+				try {
+					access = new Access(Xml.parse(Paths.assetsTree.getSpecificAsset(xmlPath, "TEXT", source)).firstElement());
+				} catch(e) {
+					Logs.trace('Error while parsing controls.xml: ${Std.string(e)}', ERROR);
+				}
+
+				if (access != null) {
+					for (category in access.elements) {
+						if (!category.has.name) continue;
+
+						var cat:ControlsCategory = {
+							name: category.getAtt("name"),
+							settings: []
+						};
+
+						for (control in category.elements) {
+							if (control.has.menuName && control.has.saveName) {
+								cat.settings.push({
+									name: control.getAtt("menuName"),
+									control: control.getAtt("saveName"),
+									custom: true,
+									sparrowIcon: control.getAtt("menuIcon").getDefault(null),
+									sparrowAnim: control.getAtt("menuAnim").getDefault(null)
+								});
+							}
+						}
+
+						customCategories.push(cat);
+					}
+				}
+			}
+		}
+		return customCategories;
+	}
+}
+
+typedef KeybindSettingData = {
+	var name:String;
+	var control:String;
+	var ?custom:Bool;
+	var ?sparrowIcon:String;
+	var ?sparrowAnim:String;
+}
+
+typedef ControlsCategory = {
+	var name:String;
+	var settings:Array<KeybindSettingData>;
 }
