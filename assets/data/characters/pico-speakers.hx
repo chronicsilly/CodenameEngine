@@ -14,7 +14,6 @@ function onPlaySingAnim(event) {
 }
 
 function update(elapsed) {
-	var animName = getAnimName();
-	if (animName == null || (animName.substr(0, 5) == "shoot" && isAnimFinished()))
+	if (getAnimName() == null || (getAnimName().substr(0, 5) == "shoot" && isAnimFinished()))
 		dance();
 }

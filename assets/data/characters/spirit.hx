@@ -7,7 +7,7 @@ function postCreate() {
 }
 
 var toAdd:Bool = true;  // Using this just to make sure
-function update(elapsed) {
+function update(elpased) {
 	if(toAdd) {
 		toAdd = false;
 		PlayState.instance.insert(PlayState.instance.members.indexOf(self), trail);

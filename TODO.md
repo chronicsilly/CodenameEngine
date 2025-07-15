@@ -26,7 +26,7 @@
 		- [ ] BPM Changes Events
 - [ ] Character Editor
 	- [x] Animation Editing
-	- [x] Animation Deletion/Creation
+	- [x] Animation Deletion/Creationg
 	- [x] Character Info Editing
 	- [x] Character Saving
 	- [x] Add Undos to Actions
@@ -44,12 +44,12 @@
 - [x] Dialogue
 - [ ] Finish Base Game port
 - [x] Add credits
-- [x] Verbose mode (`--verbose`)
+- [ ] Verbose mode (`--verbose`)
 - [ ] Tooltips
 - [ ] Fix bugs
 
 ## `v1.1.0`
-- [ ] Charter Waveforms (maybe in v1.1.0, don't wanna slow shit down)
+- [ ] Charter Waveforms (maybe in v1.1.0, dont wanna slow shit down)
 - [ ] Custom classes
 	- [ ] Proper super overrides (FlxText_HSX doesn't allow overrides for update because of this)
 	- [ ] Custom Class extending Custom Classes

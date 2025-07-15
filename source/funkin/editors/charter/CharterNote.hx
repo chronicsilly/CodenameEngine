@@ -1,10 +1,11 @@
 package funkin.editors.charter;
 
 import flixel.math.FlxPoint;
-import flixel.tweens.FlxTween;
-import flixel.util.FlxColor;
-import funkin.backend.system.Conductor;
 import funkin.editors.charter.Charter.ICharterSelectable;
+import funkin.backend.system.Conductor;
+import flixel.tweens.FlxTween;
+import funkin.backend.shaders.CustomShader;
+import flixel.util.FlxColor;
 
 class CharterNote extends UISprite implements ICharterSelectable {
 	var angleTween:FlxTween;
@@ -146,7 +147,7 @@ class CharterNote extends UISprite implements ICharterSelectable {
 		if (typeText.exists)
 			typeText.follow(this, 20 - (typeText.frameWidth/2), 20 - (typeText.frameHeight/2));
 
-		if (__passed != (__passed = step < Conductor.curStepFloat + (Conductor.songOffset / Conductor.stepCrochet))) {
+		if (__passed != (__passed = step < Conductor.curStepFloat)) {
 			if (__passed && FlxG.sound.music.playing && Charter.instance.hitsoundsEnabled(strumLineID))
 				Charter.instance.hitsound.replay();
 		}

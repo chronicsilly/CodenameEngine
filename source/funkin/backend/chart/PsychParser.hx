@@ -1,14 +1,10 @@
 package funkin.backend.chart;
 
-import funkin.backend.chart.ChartData.ChartEvent;
 import funkin.backend.chart.FNFLegacyParser.SwagSection;
+import funkin.backend.chart.ChartData.ChartEvent;
 import funkin.backend.chart.FNFLegacyParser.SwagSong;
 import funkin.backend.system.Conductor;
 
-/**
- * Parser for Psych Charts.
- * Both for pre-v1.0.0 and v1.0.0 charts.
-**/
 class PsychParser {
 	// Already parsed in sections
 	public static var ignoreEvents:Array<String> = [
@@ -110,7 +106,7 @@ class PsychParser {
 						var eventStep:Float = Conductor.getStepForTime(event.time);
 						psychEvents.push([
 							"Change Scroll Speed",
-							FlxMath.roundDecimal(event.params[1]/chart.scrollSpeed, 2), // SCROLL SPEED MULTIPLIER
+							FlxMath.roundDecimal(event.params[1]/chart.scrollSpeed, 2), // SCROLL SPEED MULTIPLER
 							FlxMath.roundDecimal( // TIME
 								event.params[0] ? // IS TWEENED?
 								(Conductor.getTimeForStep(eventStep+event.params[2]) - Conductor.getTimeForStep(eventStep))/1000

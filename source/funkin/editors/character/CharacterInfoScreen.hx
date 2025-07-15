@@ -1,10 +1,10 @@
 package funkin.editors.character;
 
 import flixel.math.FlxPoint;
-import funkin.editors.extra.PropertyButton;
-import funkin.game.Character;
-import funkin.game.HealthIcon;
 import haxe.xml.Access;
+import funkin.game.Character;
+import funkin.editors.extra.PropertyButton;
+import funkin.game.HealthIcon;
 
 class CharacterInfoScreen extends UISubstateWindow {
 	public var character:Character;

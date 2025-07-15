@@ -1,21 +1,21 @@
 package funkin.backend;
 
-import flixel.addons.effects.FlxSkewedSprite;
 import flixel.animation.FlxAnimation;
-import flixel.math.FlxMatrix;
-import flixel.math.FlxPoint;
-import flixel.math.FlxRect;
-import flixel.system.FlxAssets.FlxGraphicAsset;
-import flixel.util.typeLimit.OneOfTwo;
 import flxanimate.animate.FlxAnim.FlxSymbolAnimation;
-import funkin.backend.scripting.events.sprite.PlayAnimContext;
+import funkin.backend.utils.XMLUtil.BeatAnim;
+import funkin.backend.utils.XMLUtil.AnimData;
+import funkin.backend.utils.XMLUtil.IXMLEvents;
+import flixel.system.FlxAssets.FlxGraphicAsset;
+import flixel.addons.effects.FlxSkewedSprite;
+import haxe.io.Path;
+import funkin.backend.scripting.events.PlayAnimEvent.PlayAnimContext;
+import funkin.backend.system.interfaces.IOffsetCompatible;
+import flixel.math.FlxMatrix;
+import flixel.math.FlxRect;
+import flixel.math.FlxPoint;
+import flixel.util.typeLimit.OneOfTwo;
 import funkin.backend.system.interfaces.IBeatReceiver;
 import funkin.backend.system.Conductor;
-import funkin.backend.system.interfaces.IOffsetCompatible;
-import funkin.backend.utils.XMLUtil.AnimData;
-import funkin.backend.utils.XMLUtil.BeatAnim;
-import funkin.backend.utils.XMLUtil.IXMLEvents;
-import haxe.io.Path;
 
 enum abstract XMLAnimType(Int)
 {
@@ -48,11 +48,8 @@ class FunkinSprite extends FlxSkewedSprite implements IBeatReceiver implements I
 	public var animDatas:Map<String, AnimData> = [];
 
 	public var playAnimComplete:Void->Void = null;
-	public var globalCurFrame(get, set):Int;
-
 	/**
-	 * ODD interval -> not aligned to beats
-	 * EVEN interval -> aligned to beats
+	 * ODD interval -> asynced; EVEN interval -> synced
 	 */
 	public var beatInterval(default, set):Int = 2;
 	public var beatOffset:Int = 0;
@@ -150,7 +147,8 @@ class FunkinSprite extends FlxSkewedSprite implements IBeatReceiver implements I
 	private var countedBeat = 0;
 	public function beatHit(curBeat:Int)
 	{
-		if (lastAnimContext != LOCK && beatAnims.length > 0 && (curBeat + beatOffset) % beatInterval == 0)
+		if (skipNegativeBeats && curBeat < 0) return;
+		if (beatAnims.length > 0 && (curBeat + beatOffset) % (beatInterval * CoolUtil.maxInt(Math.floor(4 / Conductor.stepsPerBeat), 1)) == 0)
 		{
 			// TODO: find a solution without countedBeat
 			var anim = beatAnims[FlxMath.wrap(countedBeat++, 0, beatAnims.length - 1)];
@@ -259,7 +257,7 @@ class FunkinSprite extends FlxSkewedSprite implements IBeatReceiver implements I
 			for (key in animOffsets.keys()) {
 				final point = animOffsets[key];
 				animOffsets.remove(key);
-				if (point != null)
+				if(point != null)
 					point.put();
 			}
 			animOffsets = null;
@@ -390,8 +388,19 @@ class FunkinSprite extends FlxSkewedSprite implements IBeatReceiver implements I
 		return animateAtlas != null ? (animateAtlas.anim.animsMap.exists(AnimName)
 			|| animateAtlas.anim.symbolDictionary.exists(AnimName)) : animation.exists(AnimName);
 
-	public inline function getAnimName() {
-		return (animateAtlas != null) ? atlasPlayingAnim : animation.name;
+	public inline function getAnimName()
+	{
+		var name = null;
+		if (animateAtlas != null)
+		{
+			name = atlasPlayingAnim;
+		}
+		else
+		{
+			if (animation.curAnim != null)
+				name = animation.curAnim.name;
+		}
+		return name;
 	}
 
 	public inline function isAnimReversed():Bool {
@@ -413,7 +422,8 @@ class FunkinSprite extends FlxSkewedSprite implements IBeatReceiver implements I
 			animation.stop();
 	}
 
-	public inline function isAnimFinished() {
+	public inline function isAnimFinished()
+	{
 		return animateAtlas != null ? animateAtlas.anim.finished : (animation.curAnim != null ? animation.curAnim.finished : true);
 	}
 
@@ -434,12 +444,5 @@ class FunkinSprite extends FlxSkewedSprite implements IBeatReceiver implements I
 			v = 1;
 
 		return beatInterval = v;
-	}
-
-	@:noCompletion private inline function get_globalCurFrame() {
-		return animateAtlas != null ? (animateAtlas.anim.curFrame) : (animation.curAnim != null ? animation.curAnim.curFrame : 0);
-	}
-	@:noCompletion private inline function set_globalCurFrame(val:Int) {
-		return animateAtlas != null ? (animateAtlas.anim.curFrame = val) : (animation.curAnim != null ? animation.curAnim.curFrame = val : val);
 	}
 }

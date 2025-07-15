@@ -1,9 +1,10 @@
 package funkin.backend.scripting;
 
-import hscript.*;
+import haxe.io.Path;
 import hscript.Expr.Error;
 import hscript.Parser;
 import openfl.Assets;
+import hscript.*;
 
 class HScript extends Script {
 	public var interp:Interp;
@@ -16,7 +17,7 @@ class HScript extends Script {
 	public static function initParser() {
 		var parser = new Parser();
 		parser.allowJSON = parser.allowMetadata = parser.allowTypes = true;
-		parser.preprocessorValues = Script.getDefaultPreprocessors();
+		parser.preprocesorValues = Script.getDefaultPreprocessors();
 		return parser;
 	}
 
@@ -64,13 +65,7 @@ class HScript extends Script {
 	}
 
 	private function importFailedCallback(cl:Array<String>):Bool {
-		if(_importFailedCallback(cl, "source/") || _importFailedCallback(cl, "")) {
-			return true;
-		}
-		return false;
-	}
-	private function _importFailedCallback(cl:Array<String>, prefix:String):Bool {
-		var assetsPath = 'assets/$prefix${cl.join("/")}';
+		var assetsPath = 'assets/source/${cl.join("/")}';
 		for(hxExt in ["hx", "hscript", "hsc", "hxs"]) {
 			var p = '$assetsPath.$hxExt';
 			if (__importedPaths.contains(p))
@@ -101,15 +96,11 @@ class HScript extends Script {
 
 	private function _errorHandler(error:Error) {
 		var fileName = error.origin;
-		var oldfn = '$fileName:${error.line}: ';
 		if(remappedNames.exists(fileName))
 			fileName = remappedNames.get(fileName);
 		var fn = '$fileName:${error.line}: ';
 		var err = error.toString();
-		while(err.startsWith(oldfn) || err.startsWith(fn)) {
-			if (err.startsWith(oldfn)) err = err.substr(oldfn.length);
-			if (err.startsWith(fn)) err = err.substr(fn.length);
-		}
+		if (err.startsWith(fn)) err = err.substr(fn.length);
 
 		Logs.traceColored([
 			Logs.logText(fn, GREEN),

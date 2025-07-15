@@ -1,17 +1,19 @@
 package funkin.backend.system.updating;
 
-import funkin.backend.system.github.GitHubRelease;
+import openfl.Lib;
+import sys.io.Process;
+import haxe.zip.Reader;
 import funkin.backend.utils.ZipUtil;
 import haxe.io.Path;
-import openfl.Lib;
-import openfl.events.Event;
-import openfl.events.ProgressEvent;
-import openfl.net.URLLoader;
-import openfl.net.URLRequest;
 import openfl.utils.ByteArray;
-import sys.FileSystem;
 import sys.io.File;
 import sys.io.FileOutput;
+import openfl.events.Event;
+import openfl.events.ProgressEvent;
+import openfl.net.URLRequest;
+import openfl.net.URLLoader;
+import sys.FileSystem;
+import funkin.backend.system.github.GitHubRelease;
 
 class AsyncUpdater {
 	// NON ASYNC STUFF

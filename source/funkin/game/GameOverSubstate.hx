@@ -1,15 +1,15 @@
 package funkin.game;
 
+import funkin.editors.charter.Charter;
+import funkin.backend.scripting.events.GameOverCreationEvent;
+import funkin.backend.scripting.events.CancellableEvent;
+import funkin.backend.scripting.Script;
 import flixel.sound.FlxSound;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
-import funkin.backend.scripting.Script;
-import funkin.backend.scripting.events.CancellableEvent;
-import funkin.backend.scripting.events.gameover.*;
-import funkin.backend.system.Conductor;
-import funkin.editors.charter.Charter;
-import funkin.menus.FreeplayState;
 import funkin.menus.StoryMenuState;
+import funkin.menus.FreeplayState;
+import funkin.backend.system.Conductor;
 
 class GameOverSubstate extends MusicBeatSubstate
 {
@@ -24,11 +24,10 @@ class GameOverSubstate extends MusicBeatSubstate
 
 	var camFollow:FlxObject;
 
-	public static var script:String = Flags.DEFAULT_GAMEOVER_SCRIPT;
+	public static var script:String = "";
 
 	public var gameoverScript:Script;
 	public var game:PlayState = PlayState.instance; // shortcut
-	public static var instance:GameOverSubstate = null;
 
 	private var __cancelDefault:Bool = false;
 
@@ -37,16 +36,16 @@ class GameOverSubstate extends MusicBeatSubstate
 
 	public var lossSFX:FlxSound;
 
-	public function new(x:Float, y:Float, ?character:String, player:Bool = true, ?gameOverSong:String, ?lossSFX:String, ?retrySFX:String)
+	public function new(x:Float, y:Float, character:String = "bf-dead", player:Bool = true, gameOverSong:String = "gameOver", lossSFX:String = "gameOverSFX", retrySFX:String = "gameOverEnd")
 	{
 		super();
 		this.x = x;
 		this.y = y;
+		this.characterName = character;
 		this.player = player;
-		this.characterName = character != null ? character : Flags.DEFAULT_GAMEOVER_CHARACTER;
-		this.gameOverSong = gameOverSong != null ? gameOverSong : Flags.DEFAULT_GAMEOVER_SONG;
-		this.lossSFXName = lossSFX != null ? lossSFX : Flags.DEFAULT_GAMEOVER_LOSS_SFX;
-		this.retrySFX = retrySFX != null ? retrySFX : Flags.DEFAULT_GAMEOVER_RETRY_SFX;
+		this.gameOverSong = gameOverSong;
+		this.lossSFXName = lossSFX;
+		this.retrySFX = retrySFX;
 	}
 
 	public override function create()
@@ -57,7 +56,7 @@ class GameOverSubstate extends MusicBeatSubstate
 			FlxG.sound.music.stop();
 
 		gameoverScript = Script.create(Paths.script(script));
-		gameoverScript.setParent(instance = this);
+		gameoverScript.setParent(this);
 		gameoverScript.load();
 
 		var event = EventManager.get(GameOverCreationEvent).recycle(x, y, characterName, player, gameOverSong, gameOverSongBPM, lossSFXName, retrySFX);
@@ -106,7 +105,7 @@ class GameOverSubstate extends MusicBeatSubstate
 
 		if (!isEnding && ((!lossSFX.playing) || (character.getAnimName() == "firstDeath" && character.isAnimFinished())) && (FlxG.sound.music == null || !FlxG.sound.music.playing))
 		{
-			CoolUtil.playMusic(Paths.music(gameOverSong), false, 1, true, Flags.DEFAULT_BPM);
+			CoolUtil.playMusic(Paths.music(gameOverSong), false, 1, true, 100);
 			beatHit(0);
 		}
 	}
@@ -181,6 +180,7 @@ class GameOverSubstate extends MusicBeatSubstate
 
 		if (PlayState.chartingMode && Charter.undos.unsaved) game.saveWarn(false);
 		else {
+			PlayState.resetSongInfos();
 			if (Charter.instance != null) Charter.instance.__clearStatics();
 
 			if (FlxG.sound.music != null) FlxG.sound.music.stop();
@@ -196,6 +196,5 @@ class GameOverSubstate extends MusicBeatSubstate
 		gameoverScript.destroy();
 
 		super.destroy();
-		instance = null;
 	}
 }

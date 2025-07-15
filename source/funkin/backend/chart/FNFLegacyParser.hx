@@ -3,10 +3,6 @@ package funkin.backend.chart;
 import funkin.backend.chart.ChartData.ChartEvent;
 import funkin.backend.system.Conductor;
 
-/**
- * Legacy FNF chart parser.
- * This is for charts that that were made before v0.5.0.
-**/
 class FNFLegacyParser {
 	public static function parse(data:Dynamic, result:ChartData) {
 		// base fnf chart parsing
@@ -44,7 +40,7 @@ class FNFLegacyParser {
 
 		var camFocusedBF:Bool = false;
 		var altAnims:Bool = false;
-		var beatsPerMeasure:Float = data.beatsPerMeasure.getDefault(Flags.DEFAULT_BEATS_PER_MEASURE);
+		var beatsPerMeasure:Float = data.beatsPerMeasure.getDefault(4);
 		var curBPM:Float = data.bpm;
 		var curTime:Float = 0;
 		var curCrochet:Float = ((60 / curBPM) * 1000);
@@ -142,7 +138,7 @@ class FNFLegacyParser {
 
 					if ((swagSection.mustHitSection && strumLine.type == OPPONENT) ||
 						(!swagSection.mustHitSection && strumLine.type == PLAYER))
-						sectionNote[1] += 4;
+					   sectionNote[1] += 4;
 					swagSection.sectionNotes.push(sectionNote);
 				}
 			}
@@ -156,8 +152,8 @@ class FNFLegacyParser {
 			song: chart.meta.name,
 			notes: null,
 			bpm: chart.meta.bpm,
-			speed: chart.scrollSpeed,
 			needsVoices: chart.meta.needsVoices,
+			speed: chart.scrollSpeed,
 
 			player1: null,
 			player2: null,
@@ -167,9 +163,9 @@ class FNFLegacyParser {
 		for (strumLine in chart.strumLines)
 			switch (strumLine.type) {
 				case OPPONENT:
-					if (base.player2 == null) base.player2 = strumLine.characters.getDefault([Flags.DEFAULT_OPPONENT])[0];
+					if (base.player2 == null) base.player2 = strumLine.characters.getDefault(["dad"])[0];
 				case PLAYER:
-					if (base.player1 == null) base.player1 = strumLine.characters.getDefault([Flags.DEFAULT_CHARACTER])[0];
+					if (base.player1 == null) base.player1 = strumLine.characters.getDefault(["bf"])[0];
 				case ADDITIONAL: // do nothing
 			}
 
@@ -220,11 +216,11 @@ typedef SwagSong =
 	var song:String;
 	var notes:Array<SwagSection>;
 	var bpm:Float;
+	var needsVoices:Bool;
 	var speed:Float;
 	var ?stage:String;
 	var ?noteTypes:Array<String>;
 	var ?events:Array<Dynamic>;
-	var ?needsVoices:Bool;
 
 	var player1:String;
 	var player2:String;
@@ -236,12 +232,12 @@ typedef SwagSong =
 	// ADDITIONAL STUFF THAT MAY NOT BE PRESENT IN CHART
 	var ?maxHealth:Float;
 	var ?beatsPerMeasure:Float;
-	var ?stepsPerBeat:Int;
+	var ?stepsPerBeat:Float;
 }
 
 typedef SwagSection =
 {
-	var sectionNotes:Array<Array<Dynamic>>;
+	var sectionNotes:Array<Dynamic>;
 	var lengthInSteps:Int;
 	var ?sectionBeats:Float;
 	var ?typeOfSection:Int;

@@ -1,9 +1,10 @@
 package funkin.editors.charter;
 
 import flixel.math.FlxPoint;
-import funkin.backend.chart.ChartData.ChartStrumLine;
+import funkin.game.Note;
 import funkin.game.Character;
 import funkin.game.HealthIcon;
+import funkin.backend.chart.ChartData.ChartStrumLine;
 
 class CharterStrumlineScreen extends UISubstateWindow {
 	public var strumLineID:Int = -1;
@@ -18,7 +19,7 @@ class CharterStrumlineScreen extends UISubstateWindow {
 	public var hudYStepper:UINumericStepper;
 	public var visibleCheckbox:UICheckbox;
 	public var scrollSpeedStepper:UINumericStepper;
-	public var usesChartScrollSpeed:UICheckbox;
+	public var usesChartscrollSpeed:UICheckbox;
 
 	public var characterIcons:Array<HealthIcon> = [];
 
@@ -39,7 +40,7 @@ class CharterStrumlineScreen extends UISubstateWindow {
 
 		if (creatingStrumLine)
 			strumLine = {
-				characters: [Flags.DEFAULT_OPPONENT],
+				characters: ["dad"],
 				type: OPPONENT,
 				notes: [],
 				position: "dad",
@@ -78,8 +79,8 @@ class CharterStrumlineScreen extends UISubstateWindow {
 		add(typeDropdown);
 		addLabelOn(typeDropdown, "Type");
 
-		usesChartScrollSpeed = new UICheckbox(typeDropdown.x + 104, typeDropdown.y + 135, "Uses charts scroll speed?", strumLine.scrollSpeed == null);
-		usesChartScrollSpeed.onChecked = function(b) {
+		usesChartscrollSpeed = new UICheckbox(typeDropdown.x + 104, typeDropdown.y + 135, "Uses charts scroll speed?", strumLine.scrollSpeed == null);
+		usesChartscrollSpeed.onChecked = function(b) {
 			if(b)
 			{
 				scrollSpeedStepper.value = PlayState.SONG.scrollSpeed;
@@ -88,10 +89,10 @@ class CharterStrumlineScreen extends UISubstateWindow {
 				scrollSpeedStepper.selectable = true;
 			}
 		}
-		add(usesChartScrollSpeed);
+		add(usesChartscrollSpeed);
 
-		scrollSpeedStepper = new UINumericStepper(typeDropdown.x, typeDropdown.y + 128, usesChartScrollSpeed.checked ? PlayState.SONG.scrollSpeed : strumLine.scrollSpeed, 0.1, 2, 0, 10, 82);
-		if(usesChartScrollSpeed.checked)
+		scrollSpeedStepper = new UINumericStepper(typeDropdown.x, typeDropdown.y + 128, usesChartscrollSpeed.checked ? PlayState.SONG.scrollSpeed : strumLine.scrollSpeed, 0.1, 2, 0, 10, 82);
+		if(usesChartscrollSpeed.checked)
 		{
 			scrollSpeedStepper.selectable = false;
 		} else {
@@ -141,20 +142,21 @@ class CharterStrumlineScreen extends UISubstateWindow {
 		add(closeButton);
 		closeButton.color = 0xFFFF0000;
 
-		var suffixList = ["NONE"];
+		var suffixlist = ["NONE"];
 		for (i in Paths.getFolderContent('songs/${Charter.__song.toLowerCase()}/song'))
 		if (i.startsWith("Voices")) {
 			i = haxe.io.Path.withoutExtension(i.substr("Voices".length));
 			if (i == "") continue;
 			for (j in PlayState.SONG.meta.difficulties) {
-				if (i.endsWith('-${j.toLowerCase()}'))
-					suffixList.pushOnce(i.substring(0, i.length - j.length));
-				else
-					suffixList.pushOnce(i);
+				if (i.endsWith('-${j.toLowerCase()}')) {
+					if (suffixlist.contains(i.substring(0, i.length - j.length))) continue;
+					else suffixlist.push(i.substring(0, i.length - j.length));
+				}
+				else if (!suffixlist.contains(i)) suffixlist.push(i);
 			}
 		}
 
-		vocalsSuffixDropDown = new UIDropDown(typeDropdown.x, hudScaleStepper.y + 128, 200, 32, suffixList, strumLine.vocalsSuffix != null && strumLine.vocalsSuffix != "" ? suffixList.indexOf(strumLine.vocalsSuffix) : 0);
+		vocalsSuffixDropDown = new UIDropDown(typeDropdown.x, hudScaleStepper.y + 128, 200, 32, suffixlist, strumLine.vocalsSuffix != null && strumLine.vocalsSuffix != "" ? suffixlist.indexOf(strumLine.vocalsSuffix) : 0);
 		add(vocalsSuffixDropDown);
 		addLabelOn(vocalsSuffixDropDown, "Vocal Suffix");
 	}
@@ -177,7 +179,7 @@ class CharterStrumlineScreen extends UISubstateWindow {
 			strumScale: hudScaleStepper.value,
 			vocalsSuffix: vocalsSuffixDropDown.options[vocalsSuffixDropDown.index] != "NONE" ? vocalsSuffixDropDown.options[vocalsSuffixDropDown.index] : ""
 		};
-		if(!usesChartScrollSpeed.checked) newStrumLine.scrollSpeed = scrollSpeedStepper.value;
+		if(!usesChartscrollSpeed.checked) newStrumLine.scrollSpeed = scrollSpeedStepper.value;
 		if (onSave != null) onSave(newStrumLine);
 	}
 }

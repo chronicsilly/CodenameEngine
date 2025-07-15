@@ -51,32 +51,6 @@ final class Conductor
 	public static var onTimeSignatureChange:FlxTypedSignal<(Float,Float)->Void> = new FlxTypedSignal();
 
 	/**
-	 * Current BPM
-	 */
-	public static var bpm:Float = 100;
-
-	/**
-	 * Current Crochet (time per beat), in milliseconds.
-	 */
-	public static var crochet:Float = ((60 / bpm) * 1000); // beats in milliseconds
-
-	/**
-	 * Current StepCrochet (time per step), in milliseconds.
-	 */
-	public static var stepCrochet:Float = crochet / 4; // steps in milliseconds
-
-	/**
-	 * Number of beats per measure (top number in time signature). Defaults to 4.
-	 */
-	public static var beatsPerMeasure:Float = 4;
-
-	/**
-	 * Number of steps per beat (bottom number in time signature). Defaults to 4.
-	 */
-	public static var stepsPerBeat:Int = 4;
-
-
-	/**
 	 * Current position of the song, in milliseconds.
 	 */
 	public static var songPosition(get, default):Float;
@@ -379,11 +353,7 @@ final class Conductor
 	private static var __updateMeasure:Bool;
 
 	private static function update() {
-		if (FlxG.state != null && FlxG.state is MusicBeatState) {
-			var state:MusicBeatState = cast FlxG.state;
-			if(state.cancelConductorUpdate)
-				return;
-		}
+		if (FlxG.state != null && FlxG.state is MusicBeatState && cast(FlxG.state, MusicBeatState).cancelConductorUpdate) return;
 
 		__updateSongPos(FlxG.elapsed);
 
@@ -448,42 +418,7 @@ final class Conductor
 						else st.measureHit(curMeasure);
 					}
 				}
-				if (__updateBeat && curBeat > oldBeat) {
-					for(i in oldBeat...curBeat) {
-						onBeatHit.dispatch(i+1);
-					}
-				}
-				if (__updateMeasure && curMeasure > oldMeasure) {
-					for(i in oldMeasure...curMeasure) {
-						onMeasureHit.dispatch(i+1);
-					}
-				}
-
-				if (FlxG.state is IBeatReceiver) {
-					var state = FlxG.state;
-					while(state != null) {
-						if (state is IBeatReceiver && (state.subState == null || state.persistentUpdate)) {
-							var st:IBeatReceiver = cast state;
-							if (curStep > oldStep) {
-								for(i in oldStep...curStep) {
-									st.stepHit(i+1);
-								}
-							}
-							if (__updateBeat && curBeat > oldBeat) {
-								for(i in oldBeat...curBeat) {
-									st.beatHit(i+1);
-								}
-							}
-							if (__updateMeasure && curMeasure > oldMeasure) {
-								for(i in oldMeasure...curMeasure) {
-									st.measureHit(i+1);
-								}
-							}
-						}
-						state = state.subState;
-					}
-				}
-
+				state = state.subState;
 			}
 		}
 	}
@@ -498,19 +433,6 @@ final class Conductor
 			for (i in index...bpmChangeMap.length) if (bpmChangeMap[i].songTime > time) return i - 1;
 			return bpmChangeMap.length - 1;
 		}
-	}
-
-	public static function changeBPM(newBpm:Float, beatsPerMeasure:Float = 4, stepsPerBeat:Int = 4)
-	{
-		bpm = newBpm;
-
-		crochet = ((60 / bpm) * 1000);
-		stepCrochet = crochet / stepsPerBeat;
-
-		Conductor.beatsPerMeasure = beatsPerMeasure;
-		Conductor.stepsPerBeat = stepsPerBeat;
-
-		onBPMChange.dispatch(bpm);
 	}
 
 	public static function getStepsInChangeIndex(stepTime:Float, index:Int = 0):Int {

@@ -25,9 +25,6 @@ import js.Browser;
 import sys.io.Process;
 #end
 
-/**
-	Access operating system level settings and operations.
-**/
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
@@ -47,68 +44,21 @@ extern "C" {
 #end
 class System
 {
-	/**
-		Determines if the screen saver is allowed to start or not.
-	**/
 	public static var allowScreenTimeout(get, set):Bool;
-
-	/**
-		The path to the directory where the application is installed, along with
-		its supporting files. In many cases, this directory is read-only, and
-		attempts to write to files, create new files, or delete files in this
-		directory are likely fail.
-	**/
 	public static var applicationDirectory(get, never):String;
-
-	/**
-		The application's dedicated storage directory, which unique to each
-		application and user. Useful for storing settings on a user-specific
-		and application-specific basis.
-
-		This directory may or may not be removed when the application is
-		uninstalled, and it depends on the platform and installer technology
-		that is used.
-	**/
 	public static var applicationStorageDirectory(get, never):String;
-
-	/**
-		The path to the directory containing the user's desktop.
-	**/
 	public static var desktopDirectory(get, never):String;
-
 	public static var deviceModel(get, never):String;
 	public static var deviceVendor(get, never):String;
 	public static var disableCFFI:Bool;
-
-	/**
-		The path to the directory containing the user's documents.
-	**/
 	public static var documentsDirectory(get, never):String;
-
-	/**
-		The platform's default endianness for bytes.
-	**/
 	public static var endianness(get, never):Endian;
-
-	/**
-		The path to the directory where fonts are installed.
-	**/
 	public static var fontsDirectory(get, never):String;
-
-	/**
-		The number of available video displays.
-	**/
 	public static var numDisplays(get, never):Int;
-
 	public static var platformLabel(get, never):String;
 	public static var platformName(get, never):String;
 	public static var platformVersion(get, never):String;
-
-	/**
-		The path to the user's home directory.
-	**/
 	public static var userDirectory(get, never):String;
-
 	@:noCompletion private static var __applicationDirectory:String;
 	@:noCompletion private static var __applicationEntryPoint:Map<String, Function>;
 	@:noCompletion private static var __applicationStorageDirectory:String;
@@ -134,7 +84,7 @@ class System
 		{
 			var htmlElement:Element = null;
 
-			if ((element is String))
+			if (Std.is(element, String))
 			{
 				htmlElement = cast Browser.document.getElementById(element);
 			}
@@ -165,7 +115,7 @@ class System
 
 			if (config == null) config = {};
 
-			if (Reflect.hasField(config, "background") && (config.background is String))
+			if (Reflect.hasField(config, "background") && Std.is(config.background, String))
 			{
 				var background = StringTools.replace(Std.string(config.background), "#", "");
 
@@ -189,10 +139,6 @@ class System
 	#end
 
 	#if (!lime_doc_gen || sys)
-	/**
-		Attempts to exit the application. Dispatches `onExit`, and will not
-		exit if the event is canceled.
-	**/
 	public static function exit(code:Int):Void
 	{
 		var currentApp = Application.current;
@@ -221,9 +167,6 @@ class System
 	}
 	#end
 
-	/**
-		Returns information about the video display with the specified ID.
-	**/
 	public static function getDisplay(id:Int):Display
 	{
 		#if (lime_cffi && !macro)
@@ -322,12 +265,11 @@ class System
 		return null;
 	}
 
-	/**
-		The number of milliseconds since the application was initialized.
-	**/
 	public static function getTimer():Int
 	{
-		#if flash
+		#if (kha && !macro)
+		return Std.int(kha.System.time * 1000);
+		#elseif flash
 		return flash.Lib.getTimer();
 		#elseif ((js && !nodejs) || electron)
 		return Std.int(Browser.window.performance.now());
@@ -353,11 +295,6 @@ class System
 	}
 	#end
 
-	/**
-		Opens a file with the suste, default application.
-
-		In a web browser, opens a URL with target `_blank`.
-	**/
 	public static function openFile(path:String):Void
 	{
 		if (path != null)
@@ -384,9 +321,6 @@ class System
 		}
 	}
 
-	/**
-		Opens a URL with the specified target web browser window.
-	**/
 	public static function openURL(url:String, target:String = "_blank"):Void
 	{
 		if (url != null)
@@ -499,8 +433,6 @@ class System
 	#if sys
 	private static function __parseArguments(attributes:WindowAttributes):Void
 	{
-		// TODO: Handle default arguments, like --window-fps=60
-
 		var arguments = Sys.args();
 		var stripQuotes = ~/^['"](.*)['"]$/;
 		var equals, argValue, parameters = null;
@@ -607,7 +539,6 @@ class System
 		#if (sys && !macro)
 		funkin.backend.utils.NativeAPI.registerAsDPICompatible();
 		funkin.backend.system.CommandLineHandler.parseCommandLine(Sys.args());
-		funkin.backend.system.Main.fixWorkingDirectory();
 		#end
 
 		if (__applicationEntryPoint == null)
@@ -896,7 +827,7 @@ class System
 	}
 }
 
-#if (haxe_ver >= 4.0) enum #else @:enum #end abstract SystemDirectory(Int) from Int to Int from UInt to UInt
+enum abstract SystemDirectory(Int) from Int to Int from UInt to UInt
 {
 	var APPLICATION = 0;
 	var APPLICATION_STORAGE = 1;

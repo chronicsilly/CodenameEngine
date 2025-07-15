@@ -1,9 +1,7 @@
 import funkin.system.FunkinSprite;
 
 var tankman:FunkinSprite;
-var tankTalk, distorto:FlxSound;
-var timers:Array<FlxTimer> = [];
-var destroyDistorto:Bool = true;
+var tankTalk1, distorto:FlxSound;
 
 function create() {
 	FlxTween.tween(FlxG.camera, {zoom: 1}, 0.7, {ease: FlxEase.quadInOut});
@@ -30,39 +28,29 @@ function create() {
 	tankman.playAnim('tank');
 	tankTalk.play();
 
-	timer(4.1, function()
+	new FlxTimer().start(4.1, function(ugly:FlxTimer)
 	{
 		FlxTween.tween(FlxG.camera, {zoom: game.defaultCamZoom * 1.4}, 0.4, {ease: FlxEase.quadOut});
 		FlxTween.tween(FlxG.camera, {zoom: game.defaultCamZoom * 1.3}, 0.7, {ease: FlxEase.quadInOut, startDelay: 0.45});
 		game.gf.playAnim('sad', false, "DANCE");
 	});
 
-	timer(11, function() {
-		destroyDistorto = false;
+	new FlxTimer().start(11, function(tmr:FlxTimer)
+	{
+		game.remove(tankman);
+		tankman.destroy();
+
+		game.camHUD.visible = true;
+		game.dad.visible = true;
 		distorto.fadeOut((Conductor.crochet / 1000) * 5, 0);
+		FlxTween.tween(FlxG.camera, {zoom: game.defaultCamZoom}, 0.7, {ease: FlxEase.quadInOut, startDelay: 0});
+
 		close();
 	});
-}
-
-function timer(duration:Float, callBack:Void->Void) {
-	timers.push(new FlxTimer().start(duration, function(timer) {
-		timers.remove(timer);
-		callBack();
-	}));
 }
 
 function focusOn(char) {
 	var camPos = char.getCameraPosition();
 	game.camFollow.setPosition(camPos.x, camPos.y);
 	camPos.put();
-}
-
-function destroy() {
-	game.remove(tankman);
-	game.camHUD.visible = true;
-	game.dad.visible = true;
-	for(timer in timers) timer.cancel();
-	for(thing in [tankman, tankTalk]) thing.destroy();
-	if(destroyDistorto) distorto.destroy();
-	FlxTween.tween(FlxG.camera, {zoom: game.defaultCamZoom}, 0.7, {ease: FlxEase.quadInOut, startDelay: 0});
 }

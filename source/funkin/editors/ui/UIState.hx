@@ -1,22 +1,19 @@
 package funkin.editors.ui;
 
-import flixel.math.FlxPoint;
-import flixel.math.FlxRect;
+import lime.ui.KeyModifier;
+import lime.ui.KeyCode;
 import funkin.backend.system.framerate.Framerate;
 import funkin.editors.ui.UIContextMenu.UIContextMenuCallback;
-import funkin.editors.ui.UIContextMenu.UIContextMenuOption;
-import lime.ui.KeyCode;
-import lime.ui.KeyModifier;
 import openfl.ui.Mouse;
+import funkin.editors.ui.UIContextMenu.UIContextMenuOption;
+import flixel.math.FlxPoint;
 import openfl.ui.MouseCursor;
+import flixel.math.FlxRect;
 
 class UIState extends MusicBeatState {
 	public var curContextMenu:UIContextMenu = null;
 
-	public static var state(get, never):UIState;
-
-	private inline static function get_state()
-		return FlxG.state is UIState ? cast FlxG.state : null;
+	public static var state(get, null):UIState;
 
 	public var buttonHandler:Void->Void = null;
 	public var hoveredSprite:UISprite = null;
@@ -26,6 +23,9 @@ class UIState extends MusicBeatState {
 
 	private var __rect:FlxRect;
 	private var __mousePos:FlxPoint;
+
+	private inline static function get_state()
+		return FlxG.state is UIState ? cast FlxG.state : null;
 
 	public override function create() {
 		__rect = new FlxRect();

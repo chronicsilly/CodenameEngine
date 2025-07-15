@@ -2,9 +2,6 @@ package funkin.options.type;
 
 import flixel.util.FlxColor;
 
-/**
- * Option type that has a new button, and is green.
-**/
 class NewOption extends TextOption {
 	public var iconSpr:FlxSprite;
 

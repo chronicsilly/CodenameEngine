@@ -2,9 +2,6 @@ package funkin.options.type;
 
 import flixel.effects.FlxFlicker;
 
-/**
- * Option type that has text.
-**/
 class TextOption extends OptionType {
 	public var selectCallback:Void->Void;
 

@@ -1,9 +1,10 @@
 package funkin.game.cutscenes.dialogue;
 
-import flixel.tweens.FlxTween;
-import funkin.backend.scripting.Script;
-import funkin.backend.scripting.events.sprite.*;
+import funkin.backend.scripting.events.PlayAnimEvent;
 import funkin.backend.scripting.events.dialogue.*;
+import funkin.backend.scripting.events.CancellableEvent;
+import funkin.backend.scripting.Script;
+import flixel.tweens.FlxTween;
 import haxe.xml.Access;
 
 class DialogueCharacter extends FunkinSprite {
@@ -53,10 +54,9 @@ class DialogueCharacter extends FunkinSprite {
 			x = 0; y = 0;
 		} catch(e) {
 			var message:String = e.toString();
-			Logs.trace('Failed to load dialogue character $name: ${message}', ERROR, RED);
+			Logs.trace('Failed to load dialogue character $name: ${message}', ERROR);
 			dialogueCharScript.call("loadingError", [message]);
 		}
-
 		visible = false;
 		dialogueCharScript.call("postCreate");
 	}

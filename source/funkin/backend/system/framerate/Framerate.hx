@@ -1,11 +1,12 @@
 package funkin.backend.system.framerate;
 
-import flixel.math.FlxPoint;
 import openfl.display.Bitmap;
 import openfl.display.BitmapData;
+import flixel.math.FlxPoint;
+import openfl.events.KeyboardEvent;
 import openfl.display.DisplayObject;
 import openfl.display.Sprite;
-import openfl.events.KeyboardEvent;
+import openfl.text.TextField;
 import openfl.text.TextFormat;
 import openfl.ui.Keyboard;
 
@@ -20,7 +21,7 @@ class Framerate extends Sprite {
 	public static var codenameBuildField:CodenameBuildField;
 	#end
 
-	public static var fontName:String = #if windows '${Sys.getEnv("windir")}\\Fonts\\consola.ttf' #else "_typewriter" #end;
+	public static var fontName:String = #if windows '${Sys.getEnv("windir")}\\Fonts\\consola.ttf' #else "_sans" #end;
 
 	/**
 	 * 0: FPS INVISIBLE
@@ -46,7 +47,7 @@ class Framerate extends Sprite {
 		super();
 		if (instance != null) throw "Cannot create another instance";
 		instance = this;
-		textFormat = new TextFormat(fontName, 12, -1);
+		textFormat = new TextFormat("Consolas", 12, -1);
 
 		isLoaded = true;
 
@@ -80,16 +81,6 @@ class Framerate extends Sprite {
 		#if (gl_stats && !disable_cffi && (!html5 || !canvas))
 		__addCategory(new StatsInfo());
 		#end
-	}
-
-	public function reload() {
-		for(c in categories)
-			c.reload();
-		#if SHOW_BUILD_ON_FPS
-		codenameBuildField.reload();
-		#end
-		memoryCounter.reload();
-		fpsCounter.reload();
 	}
 
 	private function __addCategory(category:FramerateCategory) {
@@ -126,7 +117,7 @@ class Framerate extends Sprite {
 		bgSprite.scaleY = height;
 
 		var selectable = debugMode == 2;
-		{  // idk i tried to make it more readable:sob:  - Nex
+		{  // idk i tried to make it more lookable:sob:  - Nex
 			memoryCounter.memoryText.selectable = memoryCounter.memoryPeakText.selectable =
 			fpsCounter.fpsNum.selectable = fpsCounter.fpsLabel.selectable =
 			#if SHOW_BUILD_ON_FPS codenameBuildField.selectable = #end selectable;

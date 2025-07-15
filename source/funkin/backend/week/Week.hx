@@ -1,7 +1,6 @@
 package funkin.backend.week;
 
 import flixel.math.FlxPoint;
-import flixel.util.FlxColor;
 import funkin.backend.week.WeekData.WeekCharacter;
 import funkin.backend.week.WeekData;
 import haxe.xml.Access;
@@ -25,8 +24,7 @@ class Week {
 			sprite: week.getAtt('sprite').getDefault(weekName),
 			chars: [null, null, null],
 			songs: [],
-			difficulties: ['easy', 'normal', 'hard'],
-			bgColor: week.has.bgColor ? FlxColor.fromString(week.getAtt("bgColor")) : Flags.DEFAULT_WEEK_COLOR
+			difficulties: ['easy', 'normal', 'hard']
 		};
 
 		var weekName = weekObj.name;
@@ -74,14 +72,10 @@ class Week {
 		catch(e) Logs.trace('Cannot parse character "$charName.xml": ${Std.string(e)}', ERROR);
 		if (char == null) return null;
 
-		if (!char.has.name) char.x.set("name", charName);
-		if (!char.has.sprite) char.x.set("sprite", 'menus/storymenu/characters/${char.att.name}');
-		if (!char.has.updateHitbox) char.x.set("updateHitbox", "true");
-
 		return {
 			xml: char,
-			name: char.att.name,
-			spritePath: char.att.sprite,
+			name: charName,
+			spritePath: Paths.image(char.getAtt('sprite').getDefault('menus/storymenu/characters/${charName}')),
 			scale: Std.parseFloat(char.getAtt('scale')).getDefault(1),
 			offset: FlxPoint.get(
 				Std.parseFloat(char.getAtt('x')).getDefault(0),

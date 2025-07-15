@@ -1,7 +1,7 @@
 package funkin.editors.charter;
 
-import flixel.util.FlxSort;
 import funkin.editors.charter.CharterBackdropGroup.EventBackdrop;
+import flixel.util.FlxSort;
 
 class CharterEventGroup extends FlxTypedGroup<CharterEvent> {
 	public var eventsBackdrop:EventBackdrop;

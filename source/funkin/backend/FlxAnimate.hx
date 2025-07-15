@@ -1,10 +1,13 @@
 package funkin.backend;
 
-import flixel.graphics.frames.FlxFrame;
-import flixel.math.FlxAngle;
-import flixel.math.FlxMatrix;
-import openfl.display.BlendMode;
+import flixel.graphics.frames.FlxFramesCollection;
 import openfl.geom.ColorTransform;
+import flixel.math.FlxMatrix;
+import flixel.math.FlxAngle;
+import flixel.math.FlxRect;
+import flixel.graphics.frames.FlxFrame;
+import flixel.math.FlxPoint;
+import openfl.display.BlendMode;
 
 class FlxAnimate extends flxanimate.FlxAnimate {
 	static var rMatrix = new FlxMatrix();
@@ -33,7 +36,7 @@ class FlxAnimate extends flxanimate.FlxAnimate {
 					var angleOff = (frameOffsetAngle - angle) * FlxAngle.TO_RAD;
 					var cos = Math.cos(angleOff);
 					var sin = Math.sin(angleOff);
-					// cos doesn't need to be negated
+					// cos doesnt need to be negated
 					rMatrix.rotateWithTrig(cos, -sin);
 					rMatrix.translate(-frameOffset.x, -frameOffset.y);
 					rMatrix.rotateWithTrig(cos, sin);
@@ -77,7 +80,7 @@ class FlxAnimate extends flxanimate.FlxAnimate {
 			#end
 		}
 
-		// doesn't work, needs to be remade
+		// doesnt work, needs to be remade
 		// #if FLX_DEBUG
 		// if (FlxG.debugger.drawDebug)
 		// 	drawDebug();
@@ -86,7 +89,7 @@ class FlxAnimate extends flxanimate.FlxAnimate {
 
 	override function limbOnScreen(limb:FlxFrame, m:FlxMatrix, ?Camera:FlxCamera)
 	{
-		// TODO: ACTUAL OPTIMIZATION
+		// TODO: ACTUAL OPTIMISATION
 		return true;
 	}
 }

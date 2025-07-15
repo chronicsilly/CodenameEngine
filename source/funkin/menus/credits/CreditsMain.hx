@@ -2,7 +2,6 @@ package funkin.menus.credits;
 
 import flixel.util.FlxColor;
 import funkin.backend.assets.AssetsLibraryList.AssetSource;
-import funkin.backend.system.github.GitHubContributor.CreditsGitHubContributor;
 import funkin.options.OptionsScreen;
 import funkin.options.TreeMenu;
 import funkin.options.type.*;
@@ -28,7 +27,7 @@ class CreditsMain extends TreeMenu {
 			if (Paths.assetsTree.existsSpecific(xmlPath, "TEXT")) {
 				var access:Access = null;
 				try access = new Access(Xml.parse(Paths.assetsTree.getSpecificAsset(xmlPath, "TEXT")))
-				catch(e) Logs.trace('[CreditsMain] Error while parsing credits.xml: ${Std.string(e)}', ERROR);
+				catch(e) Logs.trace('Error while parsing credits.xml: ${Std.string(e)}', ERROR);
 				if (access != null) for (c in parseCreditsFromXML(access)) items.push(c);
 			}
 		}
@@ -37,7 +36,7 @@ class CreditsMain extends TreeMenu {
 			optionsTree.add(Type.createInstance(CreditsCodename, []));
 		}));
 		items.push(new TextOption("Friday Night Funkin'", "Select this to open the itch.io page of the original game to donate!", function() {
-			CoolUtil.openURL(Flags.URL_FNF_ITCH);
+			CoolUtil.openURL("https://ninja-muffin24.itch.io/funkin");
 		}));
 
 		main = new OptionsScreen('Credits', 'The people who made this possible!', items);
@@ -62,14 +61,13 @@ class CreditsMain extends TreeMenu {
 				}
 
 				var username = node.getAtt("user");
-				var user:CreditsGitHubContributor = {  // Kind of forcing
+				var user = {  // Kind of forcing
 					login: username,
 					html_url: 'https://github.com/$username',
 					avatar_url: 'https://github.com/$username.png'
 				};
 				var opt:GithubIconOption = new GithubIconOption(user, desc, null,
-					node.has.customName ? node.att.customName : null,
-					node.has.size ? Std.parseInt(node.att.size) : 96,
+					node.has.customName ? node.att.customName : null, node.has.size ? Std.parseInt(node.att.size) : 96,
 					node.has.portrait ? node.att.portrait.toLowerCase() == "false" ? false : true : true
 				);
 				if (node.has.color)

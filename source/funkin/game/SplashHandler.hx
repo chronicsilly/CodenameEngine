@@ -1,6 +1,5 @@
 package funkin.game;
 
-import funkin.backend.scripting.events.splash.*;
 
 class SplashHandler extends FlxTypedGroup<Splash> {
 	/**
@@ -42,15 +41,10 @@ class SplashHandler extends FlxTypedGroup<Splash> {
 	var __grp:SplashGroup;
 	public function showSplash(name:String, strum:Strum) {
 		__grp = getSplashGroup(name);
-
-		var event = EventManager.get(SplashShowEvent).recycle(name, __grp.showOnStrum(strum), strum, __grp);
-		event = PlayState.instance.gameAndCharsEvent("onSplashShown", event);
-
-		if (!event.cancelled)
-			add(event.splash);
+		add(__grp.showOnStrum(strum));
 
 		// max 8 rendered splashes
-		while(members.length > Flags.MAX_SPLASHES)
+		while(members.length > 8)
 			remove(members[0], true);
 	}
 }

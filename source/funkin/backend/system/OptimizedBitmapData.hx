@@ -1,9 +1,9 @@
 package funkin.backend.system;
 
 import lime.graphics.Image;
-import lime.graphics.cairo.CairoImageSurface;
-import openfl.display.BitmapData;
 import openfl.geom.Rectangle;
+import openfl.display.BitmapData;
+import lime.graphics.cairo.CairoImageSurface;
 
 class OptimizedBitmapData extends BitmapData {
 	@SuppressWarnings("checkstyle:Dynamic")

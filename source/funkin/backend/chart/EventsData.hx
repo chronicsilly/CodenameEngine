@@ -1,11 +1,11 @@
 package funkin.backend.chart;
 
-import funkin.backend.assets.Paths;
-import haxe.Json;
-import haxe.io.Path;
-import hscript.Interp;
 import hscript.Parser;
+import hscript.Interp;
+import haxe.Json;
 import openfl.Assets;
+import haxe.io.Path;
+import funkin.backend.assets.Paths;
 
 using StringTools;
 
@@ -16,63 +16,10 @@ class EventsData {
 			{name: "Function Name", type: TString, defValue: "myFunc"},
 			{name: "Function Parameters (String split with commas)", type: TString, defValue: ""}
 		],
-		"Camera Movement" => [
-			{name: "Camera Target", type: TStrumLine, defValue: 0},
-			{name: "Tween Movement?", type: TBool, defValue: true, saveIfDefault: false},
-			{name: "Tween Time (Steps, IF NOT CLASSIC)", type: TFloat(0.25, 9999, 0.25, 2), defValue: 4, saveIfDefault: false},
-			{  // since its the most used event even by default, we'll set saveIfDefault false to avoid filling up with unnecessary parameters the files  - Nex
-				name: "Tween Ease (ex: circ, quad, cube)",
-				type: TDropDown(['CLASSIC', 'linear', 'back', 'bounce', 'circ', 'cube', 'elastic', 'expo', 'quad', 'quart', 'quint', 'sine', 'smoothStep', 'smootherStep']),
-				defValue: "CLASSIC",
-				saveIfDefault: false
-			},
-			{
-				name: "Tween Type (excluded if CLASSIC or linear, ex: InOut)",
-				type: TDropDown(['In', 'Out', 'InOut']),
-				defValue: "In",
-				saveIfDefault: false
-			}
-		],
-		"Camera Position" => [
-			{name: "X", type: TFloat(null, null, 10, 3), defValue: 0},
-			{name: "Y", type: TFloat(null, null, 10, 3), defValue: 0},
-			{name: "Tween Movement?", type: TBool, defValue: true, saveIfDefault: false},
-			{name: "Tween Time (Steps, IF NOT CLASSIC)", type: TFloat(0.25, 9999, 0.25, 2), defValue: 4, saveIfDefault: false},
-			{
-				name: "Tween Ease (ex: circ, quad, cube)",
-				type: TDropDown(['CLASSIC', 'linear', 'back', 'bounce', 'circ', 'cube', 'elastic', 'expo', 'quad', 'quart', 'quint', 'sine', 'smoothStep', 'smootherStep']),
-				defValue: "CLASSIC",
-				saveIfDefault: false
-			},
-			{
-				name: "Tween Type (excluded if CLASSIC or linear, ex: InOut)",
-				type: TDropDown(['In', 'Out', 'InOut']),
-				defValue: "In",
-				saveIfDefault: false
-			},
-			{name: "Is Offset?", type: TBool, defValue: false, saveIfDefault: false}
-		],
+		"Camera Movement" => [{name: "Camera Target", type: TStrumLine, defValue: 0}],
 		"Add Camera Zoom" => [
 			{name: "Amount", type: TFloat(-10, 10, 0.01, 2), defValue: 0.05},
 			{name: "Camera", type: TDropDown(['camGame', 'camHUD']), defValue: "camGame"}
-		],
-		"Camera Zoom" => [
-			{name: "Tween Zoom?", type: TBool, defValue: true},
-			{name: "New Zoom", type: TFloat(-10, 10, 0.01, 2), defValue: 1},
-			{name: "Camera", type: TDropDown(['camGame', 'camHUD']), defValue: "camGame"},
-			{name: "Tween Time (Steps)", type: TFloat(0.25, 9999, 0.25, 2), defValue: 4},
-			{
-				name: "Tween Ease (ex: circ, quad, cube)",
-				type: TDropDown(['linear', 'back', 'bounce', 'circ', 'cube', 'elastic', 'expo', 'quad', 'quart', 'quint', 'sine', 'smoothStep', 'smootherStep']),
-				defValue: "linear"
-			},
-			{
-				name: "Tween Type (excluded if linear, ex: InOut)",
-				type: TDropDown(['In', 'Out', 'InOut']),
-				defValue: "In"
-			},
-			{name: "Mode", type: TDropDown(['direct', 'stage']), defValue: "direct"},
-			{name: "Multiplicative?", type: TBool, defValue: true}
 		],
 		"Camera Modulo Change" => [
 			{name: "Modulo Interval", type: TInt(1, 9999999, 1), defValue: 4},
@@ -99,23 +46,13 @@ class EventsData {
 				defValue: "linear"
 			},
 			{
-				name: "Tween Type (excluded if linear, ex: InOut)",
+				name: "Tween Type (ex: InOut)",
 				type: TDropDown(['In', 'Out', 'InOut']),
 				defValue: "In"
-			},
-			{name: "Multiplicative?", type: TBool, defValue: false}
-		],
-		"Alt Animation Toggle" => [{name: "Enable On Sing Poses", type: TBool, defValue: true}, {name: "Enable On Idle", type: TBool, defValue: true}, {name: "Strumline", type: TStrumLine, defValue: 0}],
-		"Play Animation" => [
-			{name: "Character", type: TStrumLine, defValue: 0},
-			{name: "Animation", type: TString, defValue: "animation"},
-			{name: "Is forced?", type: TBool, defValue: true},
-			{
-				name: "Animation Context",
-				type: TDropDown(["NONE", "SING", "DANCE", "MISS", "LOCK"]),
-				defValue: "NONE"
 			}
 		],
+		"Alt Animation Toggle" => [{name: "Enable On Sing Poses", type: TBool, defValue: true}, {name: "Enable On Idle", type: TBool, defValue: true}, {name: "Strumline", type: TStrumLine, defValue: 0}],
+		"Play Animation" => [{name: "Character", type: TStrumLine, defValue: 0}, {name: "Animation", type: TString, defValue: "animation"}, {name: "Is forced?", type: TBool, defValue: true}]
 	];
 
 	public static var eventsList:Array<String> = defaultEventsList.copy();
@@ -136,13 +73,7 @@ class EventsData {
 		hscriptInterp.variables.set("String", TString);
 		hscriptInterp.variables.set("StrumLine", TStrumLine);
 		hscriptInterp.variables.set("ColorWheel", TColorWheel);
-		hscriptInterp.variables.set("DropDown", Reflect.makeVarArgs(function(args:Array<Dynamic>):EventParamType {
-			var flatArgs = CoolUtil.deepFlatten(args);
-			if(flatArgs.length == 0) return TDropDown(["null"]);
-			return TDropDown([for (arg in flatArgs) Std.string(arg)]);
-		}));
-		hscriptInterp.variables.set("Character", TCharacter);
-		hscriptInterp.variables.set("Stage", TStage);
+		hscriptInterp.variables.set("DropDown", Reflect.makeVarArgs((args) -> {return args.length > 0 ? TDropDown([for (arg in args) Std.string(arg)]) : TDropDown(["null"]);}));
 
 		var hscriptParser:Parser = new Parser();
 		hscriptParser.allowJSON = hscriptParser.allowMetadata = false;
@@ -165,16 +96,19 @@ class EventsData {
 			eventsParams.set(eventName, []);
 
 			try {
-				var data:EventInfoFile = cast Json.parse(fileTxt);
+				var data:Dynamic = Json.parse(fileTxt);
 				if (data == null || data.params == null) continue;
 
 				var finalParams:Array<EventParamInfo> = [];
-				for (paramData in data.params) {
+				for (paramData in cast(data.params, Array<Dynamic>)) {
 					try {
 						finalParams.push({
 							name: paramData.name,
 							type: hscriptInterp.expr(hscriptParser.parseString(paramData.type)),
-							defValue: paramData.defaultValue
+							defValue: paramData.defaultValue,
+
+							x: paramData.x,
+							y: paramData.y
 						});
 					} catch (e) {trace('Error parsing event param ${paramData.name} - ${eventName}: $e'); finalParams.push(null);}
 				}
@@ -186,14 +120,6 @@ class EventsData {
 	}
 }
 
-typedef EventInfoFile = {
-	var params:Array<{
-		var name:String;
-		var type:String;
-		var defaultValue:Dynamic;
-	}>;
-}
-
 typedef EventInfo = {
 	var params:Array<EventParamInfo>;
 	var paramValues:Array<Dynamic>;
@@ -203,7 +129,9 @@ typedef EventParamInfo = {
 	var name:String;
 	var type:EventParamType;
 	var defValue:Dynamic;
-	var ?saveIfDefault:Bool;
+
+	@:optional var x:Float;
+	@:optional var y:Float;
 }
 
 enum EventParamType {
@@ -214,6 +142,4 @@ enum EventParamType {
 	TStrumLine;
 	TColorWheel;
 	TDropDown(?options:Array<String>);
-	TCharacter;
-	TStage;
 }

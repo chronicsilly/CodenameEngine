@@ -2,9 +2,6 @@ package funkin.options.type;
 
 import flixel.math.FlxPoint;
 
-/**
- * Option type that allows you to toggle a checkbox.
-**/
 class Checkbox extends TextOption {
 
 	public var checkbox:FlxSprite;

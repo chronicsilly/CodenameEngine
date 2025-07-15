@@ -1,8 +1,8 @@
 package funkin.backend.system.framerate;
 
-import funkin.backend.system.Logs;
-import funkin.backend.utils.MemoryUtil;
 import funkin.backend.utils.native.HiddenProcess;
+import funkin.backend.utils.MemoryUtil;
+import funkin.backend.system.Logs;
 
 using StringTools;
 
@@ -79,7 +79,7 @@ class SystemInfo extends FramerateCategory {
 			#if windows
 			cpuName = RegistryUtil.get(HKEY_LOCAL_MACHINE, "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0", "ProcessorNameString");
 			#elseif mac
-			var process = new HiddenProcess("sysctl -a | grep brand_string"); // Somehow this isn't able to use the args but it still works
+			var process = new HiddenProcess("sysctl -a | grep brand_string"); // Somehow this isnt able to use the args but it still works
 			if (process.exitCode() != 0) throw 'Could not fetch CPU information';
 
 			cpuName = process.stdout.readAll().toString().trim().split(":")[1].trim();
@@ -98,7 +98,7 @@ class SystemInfo extends FramerateCategory {
 			Logs.trace('Unable to grab CPU Name: $e', ERROR, RED);
 		}
 
-		@:privateAccess if(FlxG.renderTile) { // Blit doesn't enable the gpu. Idk if we should fix this
+		@:privateAccess {
 			if (flixel.FlxG.stage.context3D != null && flixel.FlxG.stage.context3D.gl != null) {
 				gpuName = Std.string(flixel.FlxG.stage.context3D.gl.getParameter(flixel.FlxG.stage.context3D.gl.RENDERER)).split("/")[0].trim();
 				#if !flash
@@ -107,7 +107,7 @@ class SystemInfo extends FramerateCategory {
 				#end
 
 				if(openfl.display3D.Context3D.__glMemoryTotalAvailable != -1) {
-					var vRAMBytes:UInt = cast flixel.FlxG.stage.context3D.gl.getParameter(openfl.display3D.Context3D.__glMemoryTotalAvailable);
+					var vRAMBytes:UInt = cast(flixel.FlxG.stage.context3D.gl.getParameter(openfl.display3D.Context3D.__glMemoryTotalAvailable), UInt);
 					if (vRAMBytes == 1000 || vRAMBytes == 1 || vRAMBytes <= 0)
 						Logs.trace('Unable to grab GPU VRAM', ERROR, RED);
 					else

@@ -12,7 +12,7 @@ public var enablePauseMenu = true;
 public var isSpooky = false;
 
 var oldStageQuality = FlxG.game.stage.quality;
-public var daPixelZoom = PlayState.daPixelZoom;
+static var daPixelZoom = 6;
 
 /**
  * UI

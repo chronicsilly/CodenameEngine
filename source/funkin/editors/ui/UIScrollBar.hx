@@ -31,7 +31,6 @@ class UIScrollBar extends UISprite {
 		members.push(thumbIcon);
 	}
 
-	public var isScrolling:Bool = false;
 
 	public override function update(elapsed:Float) {
 		var lastHovered = hovered;
@@ -43,9 +42,7 @@ class UIScrollBar extends UISprite {
 		thumbIcon.follow(thumb, 0, Std.int((thumb.bHeight - thumbIcon.height) / 2));
 		thumbIcon.alpha = thumb.bHeight > 30 ? 1 : 0;
 
-		if ((lastHovered || lastHoveredThumb) && FlxG.mouse.justPressed) isScrolling = true;
-
-		if (isScrolling) {
+		if ((lastHovered || lastHoveredThumb) && FlxG.mouse.pressed) {
 			thumb.framesOffset = 18;
 			var mousePos = FlxG.mouse.getScreenPosition(__lastDrawCameras[0], FlxPoint.get());
 			var yPos = FlxMath.bound(FlxMath.remapToRange(mousePos.y, y, y+height, -(size/2), length + size), 0, length);
@@ -55,10 +52,7 @@ class UIScrollBar extends UISprite {
 					onChange(value);
 			}
 			mousePos.put();
-		} 
-		if (FlxG.mouse.justReleased && isScrolling) {
-			isScrolling = false;
+		} else
 			thumb.framesOffset = lastHoveredThumb ? 9 : 0;
-		}
 	}
 }

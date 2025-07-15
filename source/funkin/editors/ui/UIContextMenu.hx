@@ -1,7 +1,8 @@
 package funkin.editors.ui;
 
-import flixel.input.keyboard.FlxKey;
 import flixel.util.FlxColor;
+import flixel.util.typeLimit.OneOfTwo;
+import flixel.input.keyboard.FlxKey;
 
 class UIContextMenu extends MusicBeatSubstate {
 	public var options:Array<UIContextMenuOption>;

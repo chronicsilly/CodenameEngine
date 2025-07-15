@@ -1,19 +1,19 @@
 package funkin.game.cutscenes;
 
-import flixel.sound.FlxSound;
-import funkin.backend.scripting.Script;
-import funkin.backend.scripting.events.CancellableEvent;
-import funkin.backend.scripting.events.DynamicEvent;
-import funkin.backend.scripting.events.dialogue.*;
 import funkin.backend.utils.FunkinParentDisabler;
+import funkin.backend.scripting.events.dialogue.*;
+import funkin.backend.scripting.events.CancellableEvent;
+import funkin.backend.scripting.events.dialogue.DialogueNextLineEvent;
+import funkin.backend.scripting.Script;
+import flixel.sound.FlxSound;
 import funkin.game.cutscenes.dialogue.*;
-import haxe.io.Path;
 import haxe.xml.Access;
+import haxe.io.Path;
 
 /**
  * Substate made for dialogue cutscenes. To use it in a scripted cutscene, call `startDialogue`.
  */
-class DialogueCutscene extends ScriptedCutscene {
+class DialogueCutscene extends Cutscene {
 	public var dialoguePath:String;
 	public var dialogueData:Access;
 
@@ -28,29 +28,23 @@ class DialogueCutscene extends ScriptedCutscene {
 	public var curMusic:FlxSound = null;
 
 	public static var cutscene:DialogueCutscene;
-	public var dialogueScript(get, set):Script;
+	public var dialogueScript:Script;
 
-	public inline function set_curLine(val:DialogueLine) {
+	public function set_curLine(val:DialogueLine) {
 		lastLine = curLine;
 		return curLine = val;
 	}
 
-	// Backwards compat funcs  - Nex
-	public inline function set_dialogueScript(val:Script) return script = val;
-	public inline function get_dialogueScript() return script;
-
 	public function new(dialoguePath:String, callback:Void->Void) {
-		super(this.dialoguePath = dialoguePath, callback);
-
+		super(callback);
+		this.dialoguePath = dialoguePath;
 		camera = dialogueCamera = new FlxCamera();
 		dialogueCamera.bgColor = 0;
 		FlxG.cameras.add(dialogueCamera, false);
 
-		cutscene = this;
-	}
-
-	public override function onErrorScriptLoading() {
-		//Logs.trace('Could not find script for dialogue cutscene at "${scriptPath}"', WARNING, YELLOW);  // Too many warnings honestly, stawp  - Nex
+		dialogueScript = Script.create(Paths.script(Path.withoutExtension(dialoguePath), null, dialoguePath.startsWith('assets')));
+		dialogueScript.setParent(cutscene = this);
+		dialogueScript.load();
 	}
 
 	var parentDisabler:FunkinParentDisabler;
@@ -62,26 +56,26 @@ class DialogueCutscene extends ScriptedCutscene {
 			var event = EventManager.get(DialogueStructureEvent).recycle(dialogueData);
 			event.dialogueData = new Access(Xml.parse(Assets.getText(dialoguePath)).firstElement());
 			dialogueScript.call('structureLoaded', [event]);
-			if (event.cancelled) return;
+			if(event.cancelled) return;
 			dialogueData = event.dialogueData;
 
 			// Add characters
-			for (char in dialogueData.nodes.char) {
+			for(char in dialogueData.nodes.char) {
 				if (!char.has.name) continue;
 				if (charMap.exists(char.att.name))
 					Logs.trace('2 dialogue characters share the same name (${char.att.name}, ${char.att.name}). The old character has been replaced.');
 
 				var leChar:DialogueCharacter = new DialogueCharacter(char.att.name, char.getAtt('position').getDefault('default'));
-				if (char.has.defaultAnim) leChar.defaultAnim = char.att.defaultAnim;
+				if(char.has.defaultAnim) leChar.defaultAnim = char.att.defaultAnim;
 				add(charMap[char.att.name] = leChar);
 			}
 
 			var useDef:Bool = false;
-			if (dialogueData.has.forceBoxDefaultTxtSound && dialogueData.att.forceBoxDefaultTxtSound == "true")
+			if(dialogueData.has.forceBoxDefaultTxtSound && dialogueData.att.forceBoxDefaultTxtSound == "true")
 				useDef = true;
 
 			// Add lines
-			for (node in dialogueData.nodes.line) {
+			for(node in dialogueData.nodes.line) {
 				var formats = XMLUtil.getTextFormats(XMLUtil.fixSpacingInNode(node));
 				var volume:Null<Float> = 0.8;
 				var line:DialogueLine = {
@@ -99,8 +93,8 @@ class DialogueCutscene extends ScriptedCutscene {
 					textSound: null
 				};
 
-				if (node.has.textSound) line.textSound = FlxG.sound.load(Paths.sound(node.att.textSound));
-				else if (!useDef) {
+				if(node.has.textSound) line.textSound = FlxG.sound.load(Paths.sound(node.att.textSound));
+				else if(!useDef) {
 					var char:DialogueCharacter = charMap[line.char];
 					if(char != null && char.charData != null && char.charData.has.textSound)
 						line.textSound = FlxG.sound.load(Paths.sound(char.charData.att.textSound));
@@ -116,21 +110,22 @@ class DialogueCutscene extends ScriptedCutscene {
 
 			next(true);
 		} catch(e) {
-			var message:String = e.toString();
-			Logs.trace('Error while loading dialogue at ${dialoguePath}: $message', ERROR, RED);
-			dialogueScript.call("loadingError", [message]);
+			Logs.trace('Error while loading dialogue at ${dialoguePath}: ${e.toString()}', ERROR);
+			trace(CoolUtil.getLastExceptionStack());
 			close();
 		}
-
 		dialogueScript.call("postCreate");
 	}
 
-	public override function pauseCheck():Bool {
-		return super.pauseCheck() && !controls.ACCEPT;  // Avoids next() and pause() being called at the same time  - Nex
+	public override function beatHit(curBeat:Int) {
+		super.beatHit(curBeat);
+		dialogueScript.call("beatHit", [curBeat]);
 	}
 
 	public override function update(elapsed:Float) {
 		super.update(elapsed);
+		dialogueScript.call("update", [elapsed]);
+
 		if(controls.ACCEPT) {
 			if(dialogueBox.dialogueEnded) next();
 			else dialogueBox.text.skip();
@@ -188,16 +183,18 @@ class DialogueCutscene extends ScriptedCutscene {
 
 	public override function close() {
 		var event = new CancellableEvent();
-		for (c in charMap) c.dialogueCharScript.call("close", [event]);
-		if (dialogueBox != null) dialogueBox.dialogueBoxScript.call("close", [event]);
+		for(c in charMap) c.dialogueCharScript.call("close", [event]);
+		dialogueBox.dialogueBoxScript.call("close", [event]);
 		dialogueScript.call("close", [event]);
-		if (event.cancelled) return;
+		if(event.cancelled) return;
 
 		super.close();
 	}
 
 	public override function destroy() {
-		if (curMusic != null && !curMusic.persist) curMusic.destroy();
+		if(curMusic != null && !curMusic.persist) curMusic.destroy();
+		dialogueScript.call("destroy");
+		dialogueScript.destroy();
 
 		super.destroy();
 		if (cutscene == this) cutscene = null;

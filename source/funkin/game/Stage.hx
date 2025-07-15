@@ -1,22 +1,18 @@
 package funkin.game;
 
-import flixel.FlxState;
+import funkin.backend.scripting.events.StageXMLEvent;
+import funkin.backend.scripting.events.StageNodeEvent;
 import flixel.math.FlxPoint;
+import flixel.FlxState;
 import haxe.xml.Access;
 import funkin.backend.utils.XMLUtil.XMLImportedScriptInfo;
 import funkin.backend.system.interfaces.IBeatReceiver;
 import funkin.backend.scripting.DummyScript;
 import funkin.backend.scripting.Script;
-import funkin.backend.scripting.events.stage.*;
-import funkin.backend.system.interfaces.IBeatReceiver;
 import haxe.io.Path;
-import haxe.xml.Access;
 
 using StringTools;
 
-/**
- * A class that handles loading a stage and putting the sprites into the state.
-**/
 class Stage extends FlxBasic implements IBeatReceiver {
 	public var stageName:String = "";
 	public var stageXML:Access;
@@ -27,20 +23,11 @@ class Stage extends FlxBasic implements IBeatReceiver {
 	public var characterPoses:Map<String, StageCharPos> = [];
 	public var xmlImportedScripts:Array<XMLImportedScriptInfo> = [];
 
-	public var defaultZoom:Float = 1.05;
-	public var startCam = new FlxPoint();
-
 	private var spritesParentFolder = "";
 
-	/**
-	 * Gets a sprite from the stage.
-	**/
 	public function getSprite(name:String)
 		return stageSprites[name];
 
-	/**
-	 * Sets the sprites in the script, so you can access them by the name.
-	**/
 	public function setStagesSprites(script:Script)
 		for (k=>e in stageSprites) script.set(k, e);
 
@@ -66,19 +53,14 @@ class Stage extends FlxBasic implements IBeatReceiver {
 
 		var event = null;
 		if (stageXML != null) {
-			var parsed:Null<Float>;
-			if((parsed = Std.parseFloat(stageXML.getAtt("startCamPosX"))).isNotNull()) startCam.x = parsed;
-			if((parsed = Std.parseFloat(stageXML.getAtt("startCamPosY"))).isNotNull()) startCam.y = parsed;
-			if((parsed = Std.parseFloat(stageXML.getAtt("zoom"))).isNotNull()) defaultZoom = parsed;
-
 			stageName = stageXML.getAtt("name").getDefault(stage);
 
-			if (PlayState.instance == state) {
-				if(stageXML.has.startCamPosX) PlayState.instance.camFollow.x = startCam.x;
-				if(stageXML.has.startCamPosY) PlayState.instance.camFollow.y = startCam.y;
-				if(stageXML.has.zoom) PlayState.instance.defaultCamZoom = defaultZoom;
+			if (PlayState.instance != null) {
+				var parsed:Null<Float>;
+				if(stageXML.has.startCamPosX && (parsed = Std.parseFloat(stageXML.att.startCamPosX)) != null) PlayState.instance.camFollow.x = parsed;
+				if(stageXML.has.startCamPosY && (parsed = Std.parseFloat(stageXML.att.startCamPosY)) != null) PlayState.instance.camFollow.y = parsed;
+				if(stageXML.has.zoom && (parsed = Std.parseFloat(stageXML.att.zoom)) != null) PlayState.instance.defaultCamZoom = parsed;
 			}
-
 			if (stageXML.has.folder) {
 				spritesParentFolder = stageXML.att.folder;
 				if (!spritesParentFolder.endsWith("/")) spritesParentFolder += "/";
@@ -92,7 +74,7 @@ class Stage extends FlxBasic implements IBeatReceiver {
 
 			if (PlayState.instance != null) {
 				event = EventManager.get(StageXMLEvent).recycle(this, stageXML, elems);
-				elems = PlayState.instance.gameAndCharsEvent("onStageXMLParsed", event).elems;
+				elems = PlayState.instance.scripts.event("onStageXMLParsed", event).elems;
 			}
 
 			for(node in elems) {
@@ -175,7 +157,7 @@ class Stage extends FlxBasic implements IBeatReceiver {
 				}
 
 				if(PlayState.instance != null) {
-					sprite = PlayState.instance.gameAndCharsEvent("onStageNodeParsed", EventManager.get(StageNodeEvent).recycle(this, node, sprite, node.name)).sprite;
+					sprite = PlayState.instance.scripts.event("onStageNodeParsed", EventManager.get(StageNodeEvent).recycle(this, node, sprite, node.name)).sprite;
 				}
 
 				if (sprite != null) {
@@ -213,14 +195,14 @@ class Stage extends FlxBasic implements IBeatReceiver {
 
 		setStagesSprites(stageScript);
 
-		// i know this for gets run twice under, but its better like this in case a script modifies the short lived ones, i don't wanna save them in an array; more dynamic like this  - Nex
+		// i know this for gets run twice under, but its better like this in case a script modifies the short lived ones, i dont wanna save them in an array; more dynamic like this  - Nex
 		for (info in xmlImportedScripts) if (info.importStageSprites) {
 			var script = info.getScript();
 			if (script != null) setStagesSprites(script);
 		}
 
 		// idk lemme check anyways just in case scripts did smth  - Nex
-		if (event != null) PlayState.instance.gameAndCharsEvent("onPostStageCreation", event);
+		if (event != null) PlayState.instance.scripts.event("onPostStageCreation", event);
 
 		// shortlived scripts destroy when the stage finishes setting up  - Nex
 		for (info in xmlImportedScripts) if (info.shortLived) {
@@ -238,12 +220,6 @@ class Stage extends FlxBasic implements IBeatReceiver {
 			prepareInfos(node);
 	}
 
-	/**
-	 * Adds a character position to the stage.
-	 * @param name The name of the character
-	 * @param node The XML node
-	 * @param nonXMLInfo (Optional) Non-XML information
-	**/
 	public function addCharPos(name:String, node:Access, ?nonXMLInfo:StageCharPosInfo):StageCharPos {
 		var charPos = new StageCharPos();
 		charPos.visible = charPos.active = false;
@@ -286,21 +262,9 @@ class Stage extends FlxBasic implements IBeatReceiver {
 		return characterPoses[name] = charPos;
 	}
 
-	/**
-	 * Checks if a character is flipped or not.
-	 * @param posName The name of the character position
-	 * @param def The default value
-	**/
 	public inline function isCharFlipped(posName:String, def:Bool = false)
 		return characterPoses[posName] != null ? characterPoses[posName].flipX : def;
 
-	/**
-	 * Applies the character stuff to the character.
-	 * Adds the character to the stage, or inserts it into the stage.
-	 * @param char The character
-	 * @param posName The name of the character position
-	 * @param id The ID of the character
-	**/
 	public function applyCharStuff(char:Character, posName:String, id:Float = 0) {
 		var charPos = characterPoses[char.curCharacter] != null ? characterPoses[char.curCharacter] : characterPoses[posName];
 		if (charPos != null) {
@@ -317,21 +281,12 @@ class Stage extends FlxBasic implements IBeatReceiver {
 
 	public function measureHit(curMeasure:Int) {}
 
-	public override function destroy() {
-		startCam.put();
-		super.destroy();
-	}
-
-	/**
-	 * Gets a list of stages that are available to be used.
-	 * @param mods Whenever only the mods folder should be checked
-	**/
 	public static function getList(?mods:Bool = false):Array<String> {
 		var list:Array<String> = [];
 		for (path in Paths.getFolderContent('data/stages/', true, mods ? MODS : BOTH))
 			if (Path.extension(path) == "xml" || Path.extension(path) == "hx") {
 				var file:String = Path.withoutDirectory(Path.withoutExtension(path));
-				list.pushOnce(file);
+				if (!list.contains(file)) list.push(file);
 			}
 
 		return list;

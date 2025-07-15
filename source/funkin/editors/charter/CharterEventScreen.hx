@@ -8,9 +8,6 @@ import funkin.backend.scripting.DummyScript;
 import funkin.backend.scripting.Script;
 import funkin.backend.system.Conductor;
 import funkin.editors.charter.CharterEvent.EventNumber;
-import funkin.backend.system.Conductor;
-import funkin.game.Character;
-import funkin.game.Stage;
 
 using StringTools;
 
@@ -123,74 +120,12 @@ class CharterEventScreen extends UISubstateWindow {
 			}
 		}
 
-		if (id >= 0 && id < events.length) {{
+		if (id >= 0 && id < events.length) {
 			curEvent = id;
 			var curEvent = events[curEvent];
 			eventName.text = curEvent.name;
 
-				var value:Dynamic = CoolUtil.getDefault(curEvent.params[k], param.defValue);
-				var lastAdded = switch(param.type) {
-					case TString:
-						addLabel();
-						var textBox:UITextBox = new UITextBox(eventName.x, y, cast value);
-						paramsPanel.add(textBox); paramsFields.push(textBox);
-						textBox;
-					case TBool:
-						var checkbox = new UICheckbox(eventName.x, y, param.name, cast value);
-						paramsPanel.add(checkbox); paramsFields.push(checkbox);
-						checkbox;
-					case TInt(min, max, step):
-						addLabel();
-						var numericStepper = new UINumericStepper(eventName.x, y, cast value, step.getDefault(1), 0, min, max);
-						paramsPanel.add(numericStepper); paramsFields.push(numericStepper);
-						numericStepper;
-					case TFloat(min, max, step, precision):
-						addLabel();
-						var numericStepper = new UINumericStepper(eventName.x, y, cast value, step.getDefault(1), precision, min, max);
-						paramsPanel.add(numericStepper); paramsFields.push(numericStepper);
-						numericStepper;
-					case TStrumLine:
-						addLabel();
-						var dropdown = new UIDropDown(eventName.x, y, 320, 32, [for(k=>s in cast(FlxG.state, Charter).strumLines.members) 'Strumline #${k+1} (${s.strumLine.characters[0]})'], cast value);
-						paramsPanel.add(dropdown); paramsFields.push(dropdown);
-						dropdown;
-					case TColorWheel:
-						addLabel();
-						var colorWheel = new UIColorwheel(eventName.x, y, value is String ? FlxColor.fromString(value) : Std.int(value));
-						paramsPanel.add(colorWheel); paramsFields.push(colorWheel);
-						colorWheel;
-					case TDropDown(options):
-						addLabel();
-						var optionIndex = options.indexOf(cast value);
-						if(optionIndex < 0) {
-							optionIndex = 0;
-						}
-						var dropdown = new UIDropDown(eventName.x, y, 320, 32, options, optionIndex);
-						paramsPanel.add(dropdown); paramsFields.push(dropdown);
-						dropdown;
-					case TCharacter:
-						addLabel();
-						var charFileList = Character.getList(false);
-						var textBox:UIAutoCompleteTextBox = new UIAutoCompleteTextBox(eventName.x, y, cast value);
-						textBox.suggestItems = charFileList;
-						paramsPanel.add(textBox); paramsFields.push(textBox);
-						textBox;
-					case TStage:
-						addLabel();
-						var stageFileList = Stage.getList(false);
-						var textBox:UIAutoCompleteTextBox = new UIAutoCompleteTextBox(eventName.x, y, cast value);
-						textBox.suggestItems = stageFileList;
-						paramsPanel.add(textBox); paramsFields.push(textBox);
-						textBox;
-					default:
-						paramsFields.push(null);
-						null;
-				}
-				if (lastAdded is UISliceSprite)
-					y += cast(lastAdded, UISliceSprite).bHeight + 4;
-				else if (lastAdded is FlxSprite)
-					y += cast(lastAdded, FlxSprite).height + 6;
-			}
+			generateEventUI(curEvent);
 		} else {
 			eventName.text = "No event";
 			curEvent = -1;
@@ -283,8 +218,8 @@ class CharterEventScreen extends UISubstateWindow {
 		if (curEvent < 0) return;
 
 		var dataParams = EventsData.getEventParams(events[curEvent].name);
-		var params:Array<Dynamic> = [
-			for (i => p in paramsFields) {
+		events[curEvent].params = [
+			for(i=>p in paramsFields) {
 				if (p is UIDropDown) {
 					if (dataParams[i].type == TStrumLine) cast(p, UIDropDown).index;
 					else cast(p, UIDropDown).label.text;
@@ -307,14 +242,6 @@ class CharterEventScreen extends UISubstateWindow {
 					null;
 			}
 		];
-
-		while(dataParams.length > 0 && {
-			var index = params.length - 1;
-			var dataParam = dataParams[index];
-			dataParam.saveIfDefault == false && params[index] == dataParam.defValue;
-		}) params.pop();
-
-		events[curEvent].params = params;
 	}
 }
 

@@ -37,7 +37,7 @@ class SaveWarning {
 							if (closingWindow) WindowUtils.resetClosing();
 						} else {
 							WindowUtils.preventClosing = false; WindowUtils.resetClosing();
-							openfl.system.System.exit(0);
+							Sys.exit(0);
 						}
 					}
 				},
@@ -51,7 +51,7 @@ class SaveWarning {
 							if (closingWindow) WindowUtils.resetClosing();
 						} else {
 							WindowUtils.preventClosing = false; WindowUtils.resetClosing();
-							openfl.system.System.exit(0);
+							Sys.exit(0);
 						}
 					}
 				}

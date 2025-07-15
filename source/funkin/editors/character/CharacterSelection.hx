@@ -1,11 +1,13 @@
 package funkin.editors.character;
 
-import funkin.game.Character;
-import funkin.options.OptionsScreen;
-import funkin.options.type.IconOption;
-import funkin.options.type.NewOption;
-import funkin.options.type.TextOption;
 import funkin.options.type.OptionType;
+import funkin.options.type.NewOption;
+import flixel.util.FlxColor;
+import funkin.game.Character;
+import funkin.backend.chart.Chart;
+import funkin.options.type.TextOption;
+import funkin.options.type.IconOption;
+import funkin.options.OptionsScreen;
 
 class CharacterSelection extends EditorTreeMenu
 {
@@ -14,45 +16,21 @@ class CharacterSelection extends EditorTreeMenu
 		bgType = "charter";
 		super.create();
 
-		var isMods:Bool = true;
-		var modsList:Array<String> = Character.getList(true, true);
+		var modsList:Array<String> = Character.getList(true);
 
-		if(modsList.length == 0) {
-			modsList = Character.getList(false, true);
-			isMods = false;
-		}
+		var list:Array<OptionType> = [
+			for (char in (modsList.length == 0 ? Character.getList(false) : modsList))
+				new IconOption(char, "Press ACCEPT to edit this character.", Character.getIconFromCharName(char),
+			 	function() {
+					FlxG.switchState(new CharacterEditor(char));
+				})
+		];
 
-		function generateList(modsList:Array<String>, isMods:Bool, folderPath:String = ""):Array<OptionType> {
-			var list:Array<OptionType> = [];
-
-			for(char in modsList) {
-				if(char.endsWith("/")) {
-					var folderName = CoolUtil.getFilename(char.substr(0, char.length-1));
-
-					list.push(new TextOption(folderName + " >", "Press ACCEPT to edit this folder.", function() {
-						var newModsList = Character.getList(isMods, true, char);
-						var newList:Array<OptionType> = generateList(newModsList, isMods, folderPath + folderName + "/");
-						optionsTree.add(new OptionsScreen(folderPath + folderName, "Select a character to edit in " + folderPath + folderName + "/", newList));
-					}));
-				} else {
-					list.push(new IconOption(char, "Press ACCEPT to edit this character.", Character.getIconFromCharName(folderPath + char, char),
-						function() {
-							FlxG.switchState(new CharacterEditor(folderPath + char));
-						})
-					);
-				}
-			}
-
-			list.insert(0, new NewOption("New Character", "New Character", function() {
-				openSubState(new UIWarningSubstate("New Character: Feature Not Implemented!", "This feature isn't implemented yet. Please wait for more cne updates to have this functional.\n\n\n- Codename Devs", [
-					{label: "Ok", color: 0xFFFF0000, onClick: function(t) {}}
-				]));
-			}));
-
-			return list;
-		}
-
-		var list = generateList(modsList, isMods);
+		list.insert(0, new NewOption("New Character", "New Character", function() {
+			openSubState(new UIWarningSubstate("New Character: Feature Not Implemented!", "This feature isnt implemented yet. Please wait for more cne updates to have this functional.\n\n\n- Codename Devs", [
+				{label: "Ok", color: 0xFFFF0000, onClick: function(t) {}}
+			]));
+		}));
 
 		main = new OptionsScreen("Character Editor", "Select a character to edit", list);
 

@@ -2,10 +2,6 @@ package funkin.options.type;
 
 import funkin.game.HealthIcon;
 
-/**
- * Option type that has an icon.
- * Used for the credits menu.
-**/
 class IconOption extends TextOption {
 	public var iconSpr:HealthIcon;
 

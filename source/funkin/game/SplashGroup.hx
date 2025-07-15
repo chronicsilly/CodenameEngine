@@ -35,14 +35,14 @@ class SplashGroup extends FlxTypedGroup<Splash> {
 			pregenerateSplashes(splash);
 			add(splash);
 
-			// immediately draw once and put image in GPU to prevent freezes
+			// immediatly draw once and put image in GPU to prevent freezes
 			// TODO: change to graphics cache
 			splash.drawComplex(FlxG.camera);
 		} catch(e:Dynamic) {
 			Logs.trace('Couldn\'t parse splash data for "${path}": ${e.toString()}', ERROR);
 			valid = false;
 		}
-		maxSize = Flags.MAX_SPLASHES;
+		maxSize = 8;
 	}
 
 	function createSplash(imagePath:String) {

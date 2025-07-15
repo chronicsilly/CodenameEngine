@@ -52,7 +52,7 @@ class CharterNoteTypesList extends UISubstateWindow {
 		var list:Array<String> = [];
 		for (path in Paths.getFolderContent(pathString, true, mods ? MODS : BOTH)) if(Path.extension(path) == "hx") {
 				var file:String = Path.withoutDirectory(path);
-				list.pushOnce(file);
+				if (!list.contains(file)) list.push(file);
 			}
 
 		return list;

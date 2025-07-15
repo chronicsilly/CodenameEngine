@@ -2,9 +2,6 @@ package funkin.options.type;
 
 import flixel.effects.FlxFlicker;
 
-/**
- * Option type that allows stepping through a number.
-**/
 class NumOption extends OptionType {
 	public var selectCallback:Float->Void;
 

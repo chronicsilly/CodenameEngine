@@ -5,20 +5,17 @@ class UIDropDown extends UISliceSprite {
 	public var label:UIText;
 
 	public var index:Int = 0;
-	public var options:Array<String> = [];
-	public var subTexts:Array<String> = [];
+	public var options:Array<String>;
 
 	public var onChange:Int->Void;
 
 	var curMenu:UIContextMenu = null;
 
-	public function new(x:Float, y:Float, width:Int = 320, height:Int = 32, options:Array<String>, index:Int = 0, ?subTexts:Array<String>) {
+	public function new(x:Float, y:Float, width:Int = 320, height:Int = 32, options:Array<String>, index:Int = 0) {
 		super(x, y, width - height, height, 'editors/ui/inputbox'); // using same sprite cause fuck you
 
 		this.options = options;
 		this.index = index;
-		if (subTexts != null)
-			this.subTexts = subTexts;
 
 		cursor = BUTTON;
 
@@ -58,8 +55,7 @@ class UIDropDown extends UISliceSprite {
 		curMenu = UIState.state.openContextMenu([
 			for(k=>o in options) {
 				icon: (k == index) ? 1 : 0,
-				label: o,
-				keybindText: subTexts[k]
+				label: o
 			}
 		], function(_, i, _) {
 			setOption(i);

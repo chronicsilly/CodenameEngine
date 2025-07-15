@@ -2,7 +2,6 @@ package funkin.backend.shaders;
 
 import flixel.system.FlxAssets.FlxShader;
 
-@:dox(hide)
 class OverlayShader extends FlxShader
 {
 	@:glFragmentSource('

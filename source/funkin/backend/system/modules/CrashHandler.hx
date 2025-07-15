@@ -1,11 +1,13 @@
 package funkin.backend.system.modules;
 
+import lime.system.System;
 import funkin.backend.utils.NativeAPI;
-import haxe.CallStack;
 import openfl.Lib;
-import openfl.errors.Error;
-import openfl.events.ErrorEvent;
 import openfl.events.UncaughtErrorEvent;
+import openfl.events.ErrorEvent;
+import openfl.errors.Error;
+import openfl.events.UncaughtErrorEvent;
+import haxe.CallStack;
 
 class CrashHandler {
 	public static function init() {
@@ -20,10 +22,10 @@ class CrashHandler {
 	public static function onUncaughtError(e:UncaughtErrorEvent) {
 		var m:String = e.error;
 		if (Std.isOfType(e.error, Error)) {
-			var err:Error = cast e.error;
+			var err = cast(e.error, Error);
 			m = '${err.message}';
 		} else if (Std.isOfType(e.error, ErrorEvent)) {
-			var err:ErrorEvent = cast e.error;
+			var err = cast(e.error, ErrorEvent);
 			m = '${err.text}';
 		}
 		var stack = CallStack.exceptionStack();

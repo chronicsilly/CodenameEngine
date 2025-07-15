@@ -7,7 +7,7 @@ import flixel.FlxG;
 #end
 
 /**
- * @author lunarcleint
+ * @author lunarclient
  * @see https://twitter.com/lunarcleint
  *
  * Help from Ne_Eo

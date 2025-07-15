@@ -4,20 +4,10 @@ import flixel.util.FlxColor;
 
 using StringTools;
 
-typedef KeybindsCategory = {
-	var name:String;
-	var settings:Array<KeybindsSettings>;
-	var ?devModeOnly:Bool;
-}
-typedef KeybindsSettings = {
-	var name:String;
-	var control:String;
-}
-
 class KeybindsOptions extends MusicBeatSubstate {
 	public static var instance:KeybindsOptions;
 
-	public var categories:Array<KeybindsCategory> = [
+	public var categories = [
 		{
 			name: 'Notes',
 			settings: [
@@ -103,23 +93,12 @@ class KeybindsOptions extends MusicBeatSubstate {
 			]
 		},
 		{
-			name: 'Developer',
-			devModeOnly: true,
+			name: 'DEBUG',
 			settings: [
 				{
-					name: 'Developer Menus',
-					control: 'DEV_ACCESS'
+					name: 'Reload',
+					control: 'DEBUG_RELOAD'
 				},
-				#if GLOBAL_SCRIPT  // since theyre integrated into global script  - Nex
-				{
-					name: 'Open Console',
-					control: 'DEV_CONSOLE'
-				},
-				{
-					name: 'Reload State',
-					control: 'DEV_RELOAD'
-				},
-				#end
 			]
 		}
 	];
@@ -175,9 +154,7 @@ class KeybindsOptions extends MusicBeatSubstate {
 		}
 
 		var k:Int = 0;
-		for (category in categories) {
-			if (category.devModeOnly && !Options.devMode) continue;
-
+		for(category in categories) {
 			k++;
 			var title = new Alphabet(0, k * 75, category.name, true);
 			title.screenCenter(X);

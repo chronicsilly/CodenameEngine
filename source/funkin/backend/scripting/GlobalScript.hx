@@ -1,11 +1,9 @@
 package funkin.backend.scripting;
 
-import flixel.FlxState;
-import funkin.backend.assets.ModsFolder;
 import funkin.backend.scripting.events.CancellableEvent;
 import funkin.backend.system.Conductor;
-import funkin.options.PlayerSettings;
-
+import flixel.FlxState;
+import funkin.backend.assets.ModsFolder;
 #if GLOBAL_SCRIPT
 /**
  * Class for THE Global Script, aka script that runs in the background at all times.
@@ -13,13 +11,10 @@ import funkin.options.PlayerSettings;
 class GlobalScript {
 	public static var scripts:ScriptPack;
 
-	private static var initialized:Bool = false;
 	private static var reloading:Bool = false;
 	private static var _lastAllow_Reload:Bool = false;
 
 	public static function init() {
-		if(initialized) return;
-		initialized = true;
 		#if MOD_SUPPORT
 		ModsFolder.onModSwitch.add(onModSwitch);
 		#end
@@ -53,10 +48,10 @@ class GlobalScript {
 
 			if (reloading) {
 				reloading = false;
-				MusicBeatState.ALLOW_DEV_RELOAD = _lastAllow_Reload;
+				MusicBeatState.ALLOW_DEBUG_RELOAD = _lastAllow_Reload;
 			}
 
-			if (PlayerSettings.solo.controls.DEV_CONSOLE)
+			if (FlxG.keys.justPressed.F2)
 				NativeAPI.allocConsole();
 		});
 		FlxG.signals.preDraw.add(function() {
@@ -80,14 +75,17 @@ class GlobalScript {
 			call("update", [FlxG.elapsed]);
 
 			if (FlxG.keys.pressed.SHIFT) {
+				var resetKey = FlxG.keys.justPressed.F5; // we default the key to F5, but really this shouldn't matter, as every state will be at minimum a MusicBeatState.
+				if ((FlxG.state is MusicBeatState)) resetKey = cast(FlxG.state, MusicBeatState).controls.DEBUG_RELOAD;
+
 				// If we want, we could just make reseting GlobalScript it's own keybind, but for now this works.
-				if (PlayerSettings.solo.controls.DEV_RELOAD) {
+				if (resetKey) {
 					reloading = true;
 					Logs.trace("Reloading Global Scripts...", INFO, YELLOW);
 
 					// yeah its a bit messy, sorry. This just prevents actually reloading the actual state.
-					_lastAllow_Reload = MusicBeatState.ALLOW_DEV_RELOAD;
-					MusicBeatState.ALLOW_DEV_RELOAD = false;
+					_lastAllow_Reload = MusicBeatState.ALLOW_DEBUG_RELOAD;
+					MusicBeatState.ALLOW_DEBUG_RELOAD = false;
 
 					// Would be better to just re-initalize GlobalScript so there aren't any lose ends.
 					onModSwitch(#if MOD_SUPPORT ModsFolder.currentModFolder #else null #end);

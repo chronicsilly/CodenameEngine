@@ -1,8 +1,8 @@
 package funkin.backend.utils;
 
 import flixel.sound.FlxSound;
-import flixel.tweens.FlxTween;
 import flixel.util.FlxTimer;
+import flixel.tweens.FlxTween;
 
 /**
  * FlxBasic allowing you to disable those elements from the parent state while this substate is opened

@@ -4,9 +4,6 @@ import flixel.math.FlxPoint;
 import funkin.backend.system.Conductor;
 
 class Strum extends FlxSprite {
-	/**
-	 * Extra data that can be added to the strum.
-	**/
 	public var extra:Map<String, Dynamic> = [];
 
 	/**
@@ -14,30 +11,10 @@ class Strum extends FlxSprite {
 	 */
 	public var animSuffix:String = "";
 
-	/**
-	 * Whenever the strum should act as a CPU strum.
-	 * WARNING: Unused.
-	**/
-	@:dox(hide) public var cpu:Bool = false; // Unused
-	/**
-	 * The last time the note/confirm animation was hit.
-	**/
+	public var cpu = false; // Unused
 	public var lastHit:Float = -5000;
 
-	/**
-	 * The strum line that this strum belongs to.
-	**/
-	public var strumLine:StrumLine;
-
-	/**
-	 * The scroll speed of the notes.
-	**/
 	public var scrollSpeed:Null<Float> = null; // custom scroll speed per strum
-	/**
-	 * The direction of the notes.
-	 * If you don't want angle of the strum to interfere with the direction the notes are going,
-	 * you can set noteAngle to = 0, and then you can use the angle of the strum without it affecting the direction of the notes.
-	**/
 	public var noteAngle:Null<Float> = null;
 
 	public var lastDrawCameras(default, null):Array<FlxCamera> = [];
@@ -54,20 +31,11 @@ class Strum extends FlxSprite {
 	private inline function set_extraCopyFields(val:Array<String>)
 		return extraCopyFields = val == null ? [] : val;
 
-	/**
-	 * Whenever the strum is pressed.
-	**/
 	public var getPressed:StrumLine->Bool = null;
-	/**
-	 * Whenever the strum was just pressed.
-	**/
 	public var getJustPressed:StrumLine->Bool = null;
-	/**
-	 * Whenever the strum was just released.
-	**/
 	public var getJustReleased:StrumLine->Bool = null;
 
-	@:dox(hide) public inline function __getPressed(strumLine:StrumLine):Bool {
+	public inline function __getPressed(strumLine:StrumLine):Bool {
 		return getPressed != null ? getPressed(strumLine) : switch(ID) {
 			case 0: strumLine.controls.NOTE_LEFT;
 			case 1: strumLine.controls.NOTE_DOWN;
@@ -76,7 +44,7 @@ class Strum extends FlxSprite {
 			default: false;
 		}
 	}
-	@:dox(hide) public inline function __getJustPressed(strumLine:StrumLine) {
+	public inline function __getJustPressed(strumLine:StrumLine) {
 		return getJustPressed != null ? getJustPressed(strumLine) : switch(ID) {
 			case 0: strumLine.controls.NOTE_LEFT_P;
 			case 1: strumLine.controls.NOTE_DOWN_P;
@@ -85,7 +53,7 @@ class Strum extends FlxSprite {
 			default: false;
 		}
 	}
-	@:dox(hide) public inline function __getJustReleased(strumLine:StrumLine) {
+	public inline function __getJustReleased(strumLine:StrumLine) {
 		return getJustReleased != null ? getJustReleased(strumLine) : switch(ID) {
 			case 0: strumLine.controls.NOTE_LEFT_R;
 			case 1: strumLine.controls.NOTE_DOWN_R;
@@ -95,10 +63,6 @@ class Strum extends FlxSprite {
 		}
 	}
 
-	/**
-	 * Gets the scroll speed of the notes.
-	 * @param note (Optional) The note
-	**/
 	public inline function getScrollSpeed(?note:Note):Float {
 		if (note != null && note.scrollSpeed != null) return note.scrollSpeed;
 		if (scrollSpeed != null) return scrollSpeed;
@@ -106,12 +70,6 @@ class Strum extends FlxSprite {
 		return 1;
 	}
 
-	/**
-	 * Gets the angle of the notes.
-	 * If you don't want angle of the strum to interfere with the direction the notes are going,
-	 * you can set noteAngle to = 0, and then you can use the angle of the strum without it affecting the direction of the notes.
-	 * @param note (Optional) The note
-	**/
 	public inline function getNotesAngle(?note:Note):Float {
 		if (note != null && note.noteAngle != null) return note.noteAngle;
 		if (noteAngle != null) return noteAngle;
@@ -135,10 +93,6 @@ class Strum extends FlxSprite {
 	@:noCompletion public static final PIX180:Float = 565.4866776461628; // 180 * Math.PI
 	@:noCompletion public static final N_WIDTHDIV2:Float = Note.swagWidth / 2;
 
-	/**
-	 * Updates the position of a note.
-	 * @param daNote The note
-	**/
 	public function updateNotePosition(daNote:Note) {
 		if (!daNote.exists) return;
 
@@ -200,21 +154,11 @@ class Strum extends FlxSprite {
 		}
 	}
 
-	/**
-	 * Updates a sustain note.
-	 * @param daNote The note
-	**/
 	public inline function updateSustain(daNote:Note) {
 		if (!daNote.isSustainNote) return;
 		daNote.updateSustain(this);
 	}
 
-	/**
-	 * Updates the animation state based on the player input.
-	 * @param pressed Whenever the player is pressing the button
-	 * @param justPressed Whenever the player just pressed the button
-	 * @param justReleased Whenever the player just released the button
-	**/
 	public function updatePlayerInput(pressed:Bool, justPressed:Bool, justReleased:Bool) {
 		switch(getAnim()) {
 			case "confirm":
@@ -231,30 +175,17 @@ class Strum extends FlxSprite {
 		}
 	}
 
-	/**
-	 * Plays the confirm animation.
-	 * @param time The time
-	**/
 	public inline function press(time:Float) {
 		lastHit = time;
 		playAnim("confirm");
 	}
 
-	/**
-	 * Plays an animation.
-	 * @param anim The animation name
-	 * @param force Whenever the animation should be forced to play
-	**/
 	public function playAnim(anim:String, force:Bool = true) {
 		animation.play(anim, force);
 		centerOffsets();
 		centerOrigin();
 	}
-
-	/**
-	 * Gets the current animation name.
-	**/
-	public inline function getAnim() {
+	public function getAnim() {
 		return animation.name;
 	}
 }

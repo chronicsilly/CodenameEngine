@@ -33,8 +33,8 @@ class MultiThreadedScript implements IFlxDestroyable implements IHScriptCustomBe
 
 		if (parentScript != null) {
 			if (script is HScript && parentScript is HScript) {
-				var hscript:HScript = cast script;
-				var parentHScript:HScript = cast parentScript;
+				var hscript = cast(script, HScript);
+				var parentHScript = cast(parentScript, HScript);
 
 				hscript.interp.variables = parentHScript.interp.variables;
 				hscript.interp.publicVariables = parentHScript.interp.publicVariables;

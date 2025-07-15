@@ -1,18 +1,17 @@
 package funkin.editors.ui;
 
 import flixel.util.FlxColor;
-
-using StringTools;
 using flixel.util.FlxSpriteUtil;
+using StringTools;
 
-typedef SliderSegment = {
+typedef SliderSegement = {
 	var start:Float;
 	var end:Float;
 	var size:Float;
 }
 
 class UISlider extends UISprite {
-	public var segments:Array<SliderSegment> = [];
+	public var segments:Array<SliderSegement> = [];
 	public var barWidth:Int = 120;
 
 	public var progressbar:UISprite;
@@ -36,7 +35,7 @@ class UISlider extends UISprite {
 	public var valueStepper:UINumericStepper;
 	public var onChange:Float->Void;
 
-	public function new(x:Float, y:Float, width:Int = 120, value:Float, segments:Array<SliderSegment>, centered:Bool) {
+	public function new(x:Float, y:Float, width:Int = 120, value:Float, segments:Array<SliderSegement>, centered:Bool) {
 		this.segments = segments;
 		this.barWidth = width;
 		this.progressCentered = centered;
@@ -94,8 +93,6 @@ class UISlider extends UISprite {
 
 	var __stepperWidth = 25;
 
-	public var isSliding:Bool = false;
-
 	public override function update(elapsed:Float) {
 		selectableHitbox.follow(this, 0, (height-selectableHitbox.height)/2);
 
@@ -105,12 +102,10 @@ class UISlider extends UISprite {
 
 		var lastBarProgress:Float = __barProgress;
 
-		if (selectableHitbox.hovered && FlxG.mouse.justPressed) isSliding = true;
-		if (isSliding) {
+		if (selectableHitbox.hovered && FlxG.mouse.pressed) {
 			var mousePos = FlxG.mouse.getScreenPosition(__lastDrawCameras[0], FlxPoint.get());
 			__barProgress = FlxMath.bound(mousePos.x-x, 0, barWidth)/barWidth;
 			mousePos.put();
-			if (FlxG.mouse.justReleased) isSliding = false;
 		}
 
 		if (__barProgress != lastBarProgress) {

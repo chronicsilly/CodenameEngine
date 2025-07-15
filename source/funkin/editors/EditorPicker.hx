@@ -1,7 +1,7 @@
 package funkin.editors;
 
-import flixel.effects.FlxFlicker;
 import flixel.math.FlxPoint;
+import flixel.effects.FlxFlicker;
 
 class EditorPicker extends MusicBeatSubstate {
 	public var bg:FlxSprite;
@@ -9,37 +9,29 @@ class EditorPicker extends MusicBeatSubstate {
 	public var options:Array<Editor> = [
 		{
 			name: "Chart Editor",
-			id: "chart",
+			iconID: 0,
 			state: funkin.editors.charter.CharterSelection
 		},
 		{
 			name: "Character Editor",
-			id: "character",
+			iconID: 1,
 			state: funkin.editors.character.CharacterSelection
 		},
 		{
 			name: "Stage Editor",
-			id: "stage",
+			iconID: 2,
 			state: null
 		},
 		#if debug
 		{
 			name: "UI Debug State",
-			id: "uiDebug",
+			iconID: 3,
 			state: UIDebugState
 		},
 		#end
 		{
-			name: "Wiki",
-			id: "wiki",
-			state: null,
-			onClick: function() {
-				CoolUtil.openURL(Flags.URL_WIKI);
-			}
-		},
-		{
 			name: "Debug Options",
-			id: "debugOptions",
+			iconID: 4,
 			state: DebugOptions
 		}
 	];
@@ -74,7 +66,7 @@ class EditorPicker extends MusicBeatSubstate {
 
 		optionHeight = FlxG.height / options.length;
 		for(k=>o in options) {
-			var spr = new EditorPickerOption(o.name, o.id, optionHeight);
+			var spr = new EditorPickerOption(o.name, o.iconID, optionHeight);
 			spr.y = k * optionHeight;
 			add(spr);
 			sprites.push(spr);
@@ -104,9 +96,7 @@ class EditorPicker extends MusicBeatSubstate {
 		}
 
 		if (controls.ACCEPT || FlxG.mouse.justReleased) {
-			if(options[curSelected].onClick != null)
-				options[curSelected].onClick();
-			else if (options[curSelected].state != null) {
+			if (options[curSelected].state != null) {
 				selected = true;
 				CoolUtil.playMenuSFX(CONFIRM);
 
@@ -124,7 +114,7 @@ class EditorPicker extends MusicBeatSubstate {
 					});
 				});
 			} else {
-				CoolUtil.openURL(Flags.URL_EDITOR_FALLBACK);
+				CoolUtil.openURL("https://www.youtube.com/watch?v=9Youam7GYdQ");
 			}
 
 		}
@@ -155,9 +145,8 @@ class EditorPicker extends MusicBeatSubstate {
 
 typedef Editor = {
 	var name:String;
-	var id:String;
+	var iconID:Int;
 	var state:Class<MusicBeatState>;
-	var ?onClick:Void->Void;
 }
 
 class EditorPickerOption extends FlxTypedSpriteGroup<FlxSprite> {
@@ -171,14 +160,20 @@ class EditorPickerOption extends FlxTypedSpriteGroup<FlxSprite> {
 	public var selectionLerp:Float = 0;
 
 	public var iconRotationCycle:Float = 0;
-	public function new(name:String, iconID:String, height:Float) {
+	public function new(name:String, iconID:Int, height:Float) {
 		super();
+
 
 		FlxG.mouse.visible = true;
 		iconSpr = new FlxSprite();
-		iconSpr.loadGraphic(Paths.image('editors/icons/$iconID'));
+		iconSpr.loadGraphic(Paths.image('editors/icons'), true, 128, 128);
+		iconSpr.animation.add("icon", [iconID], 24, true);
+		iconSpr.animation.play("icon");
 		iconSpr.antialiasing = true;
-		iconSpr.setUnstretchedGraphicSize(110, 110, false);
+		if (height < 150) {
+			iconSpr.scale.set(height / 150, height / 150);
+			iconSpr.updateHitbox();
+		}
 		iconSpr.x = 25 + ((height - iconSpr.width) / 2);
 		iconSpr.y = (height - iconSpr.height) / 2;
 

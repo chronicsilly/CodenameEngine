@@ -33,7 +33,7 @@ class CharterNoteGroup extends FlxTypedGroup<CharterNote> {
 				noteFunc(__loopSprite);
 		}
 		for(c in Charter.selection.copy())
-			if (c != null && c is CharterNote) noteFunc(cast c);
+			if (c != null && c is CharterNote) noteFunc(cast (c, CharterNote));
 
 		__currentlyLooping = oldCur;
 	}

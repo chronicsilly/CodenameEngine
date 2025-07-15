@@ -14,12 +14,6 @@ import openfl.system.System;
 
 using StringTools;
 
-/**
- * Tools that are related to memory.
- * Including garbage collection, and memory usage, and hardware info.
- *
- * DISCLAIMER: Hardware info is only available on Native platforms.
-**/
 class MemoryUtil {
 	public static var disableCount:Int = 0;
 
@@ -40,18 +34,12 @@ class MemoryUtil {
 
 	public static function init() {}
 
-	/**
-	 * Does a minor garbage collection.
-	 */
 	public static function clearMinor() {
 		#if (cpp || java || neko)
 		Gc.run(false);
 		#end
 	}
 
-	/**
-	 * Does a full garbage collection.
-	 */
 	public static function clearMajor() {
 		#if cpp
 		Gc.run(true);
@@ -63,29 +51,18 @@ class MemoryUtil {
 		#end
 	}
 
-	/**
-	 * Enables garbage collection.
-	 */
 	public static function enable() {
 		#if (cpp || hl)
 		Gc.enable(true);
 		#end
 	}
 
-	/**
-	 * Disables garbage collection.
-	 * Fyi: doesn't fully disable garbage collection, but prevents it from running as much.
-	 */
 	public static function disable() {
 		#if (cpp || hl)
 		Gc.enable(false);
 		#end
 	}
 
-	/**
-	 * Gets the total memory of the system.
-	 * Output depends on the hardware.
-	 */
 	public static function getTotalMem():Float
 	{
 		#if windows
@@ -99,10 +76,6 @@ class MemoryUtil {
 		#end
 	}
 
-	/**
-	 * Gets the current memory usage of the app.
-	 * DISCLAIMER: This gets the memory usage that is taken up by Haxe, not the actual memory usage of the app.
-	 */
 	public static inline function currentMemUsage() {
 		#if cpp
 		return Gc.memInfo64(Gc.MEM_INFO_USAGE);
@@ -116,10 +89,6 @@ class MemoryUtil {
 	}
 
 
-	/**
-	 * Gets the memory type of the system.
-	 * Output depends on the platform, and hardware.
-	 */
 	public static function getMemType():String {
 		#if windows
 		var memoryMap:Map<Int, String> = [
@@ -175,7 +144,7 @@ class MemoryUtil {
 		if (process.exitCode() != 0) return "Unknown";
 		var lines = process.stdout.readAll().toString().split("\n");
 		for (line in lines) {
-			if (line.startsWith("Type:")) {
+			if (line.indexOf("Type:") == 0) {
 				return line.substring("Type:".length).trim();
 			}
 		}*/
@@ -183,5 +152,26 @@ class MemoryUtil {
 		// when launching the engine through the CLI, REIMPLEMENT LATER. 
 		#end
 		return "Unknown";
+	}
+
+	private static var _nb:Int = 0;
+	private static var _nbD:Int = 0;
+	private static var _zombie:Dynamic;
+
+	public static function destroyFlixelZombies() {
+		#if cpp
+		// Gc.enterGCFreeZone();
+
+		while ((_zombie = Gc.getNextZombie()) != null) {
+			_nb++;
+			if (_zombie is flixel.util.FlxDestroyUtil.IFlxDestroyable) {
+				flixel.util.FlxDestroyUtil.destroy(cast(_zombie, flixel.util.FlxDestroyUtil.IFlxDestroyable));
+				_nbD++;
+			}
+		}
+		Sys.println('Zombies: ${_nb}; IFlxDestroyable Zombies: ${_nbD}');
+
+		// Gc.exitGCFreeZone();
+		#end
 	}
 }

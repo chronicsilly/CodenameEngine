@@ -35,20 +35,16 @@ class CharterSelection extends EditorTreeMenu {
 							FlxG.switchState(new Charter(s.name, d));
 						})
 				];
-				#if sys
 				list.push(new NewOption("New Difficulty", "New Difficulty", function() {
 					FlxG.state.openSubState(new ChartCreationScreen(saveChart));
 				}));
-				#end
 				optionsTree.add(new OptionsScreen(s.name, "Select a difficulty to continue.", list));
 			}, s.color.getDefault(0xFFFFFFFF))
 		];
 
-		#if sys
 		list.insert(0, new NewOption("New Song", "New Song", function() {
 			FlxG.state.openSubState(new SongCreationScreen(saveSong));
 		}));
-		#end
 
 		main = new OptionsScreen("Chart Editor", "Select a song to modify the charts from.", list);
 
@@ -93,12 +89,11 @@ class CharterSelection extends EditorTreeMenu {
 		}
 	}
 
-	#if sys
-	public function saveSong(creation:SongCreationData, ?callback:String -> SongCreationData -> Void) {
-		var songAlreadyExists:Bool = [for (s in freeplayList.songs) s.name.toLowerCase()].contains(creation.meta.name.toLowerCase());
+	public function saveSong(creation:SongCreationData) {
+		var songAlreadlyExsits:Bool = [for (s in freeplayList.songs) s.name.toLowerCase()].contains(creation.meta.name.toLowerCase());
 
-		if (songAlreadyExists) {
-			openSubState(new UIWarningSubstate("Creating Song: Error!", "The song you are trying to create Already exists, if you would like to override it delete the song first!", [
+		if (songAlreadlyExsits) {
+			openSubState(new UIWarningSubstate("Creating Song: Error!", "The song you are trying to create alreadly exists, if you would like to override it delete the song first!", [
 				{label: "Ok", color: 0xFFFF0000, onClick: function(t) {}}
 			]));
 			return;
@@ -116,15 +111,9 @@ class CharterSelection extends EditorTreeMenu {
 
 		// Save Files
 		CoolUtil.safeSaveFile('$songFolder/meta.json', Chart.makeMetaSaveable(creation.meta));
-		if (creation.instBytes != null) sys.io.File.saveBytes('$songFolder/song/Inst.${Flags.SOUND_EXT}', creation.instBytes);
-		if (creation.voicesBytes != null) sys.io.File.saveBytes('$songFolder/song/Voices.${Flags.SOUND_EXT}', creation.voicesBytes);
-
-		if (creation.playerVocals != null) sys.io.File.saveBytes('$songFolder/song/Voices-Player.${Flags.SOUND_EXT}', creation.playerVocals);
-		if (creation.oppVocals != null) sys.io.File.saveBytes('$songFolder/song/Voices-Opponent.${Flags.SOUND_EXT}', creation.oppVocals);
+		if (creation.instBytes != null) sys.io.File.saveBytes('$songFolder/song/Inst.${Paths.SOUND_EXT}', creation.instBytes);
+		if (creation.voicesBytes != null) sys.io.File.saveBytes('$songFolder/song/Voices.${Paths.SOUND_EXT}', creation.voicesBytes);
 		#end
-
-		if (callback != null)
-			callback(songFolder, creation);
 
 		var option = new EditorIconOption(creation.meta.name, "Press ACCEPT to choose a difficulty to edit.", creation.meta.icon, function() {
 			curSong = creation.meta;
@@ -146,10 +135,10 @@ class CharterSelection extends EditorTreeMenu {
 	}
 
 	public function saveChart(name:String, data:ChartData) {
-		var difficultyAlreadyExists:Bool = curSong.difficulties.contains(name);
+		var difficultyAlreadlyExsits:Bool = curSong.difficulties.contains(name);
 
-		if (difficultyAlreadyExists) {
-			openSubState(new UIWarningSubstate("Creating Chart: Error!", "The chart you are trying to create already exists, if you would like to override it delete the chart first!", [
+		if (difficultyAlreadlyExsits) {
+			openSubState(new UIWarningSubstate("Creating Chart: Error!", "The chart you are trying to create alreadly exists, if you would like to override it delete the chart first!", [
 				{label: "Ok", color: 0xFFFF0000, onClick: function(t) {}}
 			]));
 			return;
@@ -159,7 +148,7 @@ class CharterSelection extends EditorTreeMenu {
 		var songFolder:String = '${Paths.getAssetsRoot()}/songs/${curSong.name}';
 
 		// Save Files
-		CoolUtil.safeSaveFile('$songFolder/charts/${name}.json', Json.stringify(data, Flags.JSON_PRETTY_PRINT));
+		CoolUtil.safeSaveFile('$songFolder/charts/${name}.json', Json.stringify(data, "\t"));
 
 		// Add to List
 		curSong.difficulties.push(name);
@@ -175,5 +164,4 @@ class CharterSelection extends EditorTreeMenu {
 			CoolUtil.safeSaveFile('$songFolder/meta.json', Chart.makeMetaSaveable(meta));
 		}
 	}
-	#end
 }

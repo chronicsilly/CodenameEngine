@@ -19,36 +19,16 @@ import haxe.xml.Access;
 import flixel.input.keyboard.FlxKey;
 import lime.utils.Assets;
 import flixel.animation.FlxAnimation;
-import flixel.input.keyboard.FlxKey;
-import flixel.sound.FlxSound;
-import flixel.sound.FlxSoundGroup;
-import flixel.system.frontEnds.SoundFrontEnd;
-import flixel.text.FlxText;
-import flixel.tweens.FlxTween;
-import flixel.util.FlxAxes;
 import flixel.util.FlxColor;
-import flixel.util.typeLimit.OneOfTwo;
-import funkin.backend.system.Conductor;
-import funkin.backend.utils.XMLUtil.TextFormat;
-import haxe.CallStack;
-import haxe.Json;
-import haxe.io.Bytes;
-import haxe.io.Path;
-import haxe.xml.Access;
-import lime.utils.Assets;
+import flixel.util.FlxAxes;
 import openfl.geom.ColorTransform;
+import haxe.CallStack;
 
 using StringTools;
 
-/**
- * Various utilities, that have no specific Util class.
-**/
 @:allow(funkin.game.PlayState)
 class CoolUtil
 {
-	/**
-	 * Gets the last exception stack. Useful for debugging.
-	 */
 	public static function getLastExceptionStack():String {
 		return CallStack.toString(CallStack.exceptionStack());
 	}
@@ -123,19 +103,15 @@ class CoolUtil
 	 * Gets file attributes from a file or a folder adding eventual missing folders in the path
 	 * (WARNING: Only works on `windows` for now. On other platforms the attributes' value it's always going to be `0` -thanks to the wrapper you can also use `isNothing` for checking- but still creates eventual missing folders if the platforms allows it to).
 	 * @param path Path to the file or folder
-	 * @param useAbsolute If it should use the absolute path (By default it's `true` but if it's `false` you can use files outside from this program's directory for example)
+	 * @param useAbsol If it should use the absolute path (By default it's `true` but if it's `false` you can use files outside from this program's directory for example)
 	 * @return The attributes through the `FileAttributeWrapper`
 	 */
-	@:noUsing public static inline function safeGetAttributes(path:String, useAbsolute:Bool = true):FileAttributeWrapper {
-		#if sys
+	@:noUsing public static inline function safeGetAttributes(path:String, useAbsol:Bool = true):FileAttributeWrapper {
 		addMissingFolders(Path.directory(path));
 
-		var result = NativeAPI.getFileAttributes(path, useAbsolute);
+		var result = NativeAPI.getFileAttributes(path, useAbsol);
 		if(result.isNothing) Logs.trace('The file where it has been tried to get the attributes from, might be corrupted or inexistent (code: ${result.getValue()})', WARNING);
 		return result;
-		#else
-		return new FileAttributeWrapper(0);
-		#end
 	}
 
 	/**
@@ -143,20 +119,16 @@ class CoolUtil
 	 * (WARNING: Only works on `windows` for now. On other platforms the return code it's always going to be `0` but still creates eventual missing folders if the platforms allows it to).
 	 * @param path Path to the file or folder
 	 * @param attrib The attribute(s) to set (WARNING: There are some non settable attributes, such as the `COMPRESSED` one)
-	 * @param useAbsolute If it should use the absolute path (By default it's `true` but if it's `false` you can use files outside from this program's directory for example)
+	 * @param useAbsol If it should use the absolute path (By default it's `true` but if it's `false` you can use files outside from this program's directory for example)
 	 * @return The result code: `0` means that it failed setting
 	 */
-	@:noUsing public static inline function safeSetAttributes(path:String, attrib:OneOfThree<NativeAPI.FileAttribute, FileAttributeWrapper, Int>, useAbsolute:Bool = true):Int {
+	@:noUsing public static inline function safeSetAttributes(path:String, attrib:OneOfThree<NativeAPI.FileAttribute, FileAttributeWrapper, Int>, useAbsol:Bool = true):Int {
 		// yes, i'm aware that FileAttribute is also an Int so need to include it too, but at least like this we don't have to make cast sometimes while passing the arguments  - Nex
-		#if sys
 		addMissingFolders(Path.directory(path));
 
-		var result = NativeAPI.setFileAttributes(path, attrib, useAbsolute);
+		var result = NativeAPI.setFileAttributes(path, attrib, useAbsol);
 		if(result == 0) Logs.trace('Failed to set attributes to $path with a code of: $result', WARNING);
 		return result;
-		#else
-		return 0;
-		#end
 	}
 
 	/**
@@ -164,19 +136,15 @@ class CoolUtil
 	 * (WARNING: Only works on `windows` for now. On other platforms the return code it's always going to be `0` but still creates eventual missing folders if the platforms allows it to).
 	 * @param path Path to the file or folder
 	 * @param attrib The attribute(s) to add (WARNING: There are some non settable attributes, such as the `COMPRESSED` one)
-	 * @param useAbsolute If it should use the absolute path (By default it's `true` but if it's `false` you can use files outside from this program's directory for example)
+	 * @param useAbsol If it should use the absolute path (By default it's `true` but if it's `false` you can use files outside from this program's directory for example)
 	 * @return The result code: `0` means that it failed setting
 	 */
-	@:noUsing public static inline function safeAddAttributes(path:String, attrib:OneOfTwo<NativeAPI.FileAttribute, Int>, useAbsolute:Bool = true):Int {
-		#if sys
+	@:noUsing public static inline function safeAddAttributes(path:String, attrib:OneOfTwo<NativeAPI.FileAttribute, Int>, useAbsol:Bool = true):Int {
 		addMissingFolders(Path.directory(path));
 
-		var result = NativeAPI.addFileAttributes(path, attrib, useAbsolute);
-		if (result == 0) Logs.trace('Failed to add attributes to $path with a code of: $result', WARNING);
+		var result = NativeAPI.addFileAttributes(path, attrib, useAbsol);
+		if(result == 0) Logs.trace('Failed to add attributes to $path with a code of: $result', WARNING);
 		return result;
-		#else
-		return 0;
-		#end
 	}
 
 	/**
@@ -184,19 +152,15 @@ class CoolUtil
 	 * (WARNING: Only works on `windows` for now. On other platforms the return code it's always going to be `0` but still creates eventual missing folders if the platforms allows it to).
 	 * @param path Path to the file or folder
 	 * @param attrib The attribute(s) to remove (WARNING: There are some non settable attributes, such as the `COMPRESSED` one)
-	 * @param useAbsolute If it should use the absolute path (By default it's `true` but if it's `false` you can use files outside from this program's directory for example)
+	 * @param useAbsol If it should use the absolute path (By default it's `true` but if it's `false` you can use files outside from this program's directory for example)
 	 * @return The result code: `0` means that it failed setting
 	 */
-	@:noUsing public static inline function safeRemoveAttributes(path:String, attrib:OneOfTwo<NativeAPI.FileAttribute, Int>, useAbsolute:Bool = true):Int {
-		#if sys
+	@:noUsing public static inline function safeRemoveAttributes(path:String, attrib:OneOfTwo<NativeAPI.FileAttribute, Int>, useAbsol:Bool = true):Int {
 		addMissingFolders(Path.directory(path));
 
-		var result = NativeAPI.removeFileAttributes(path, attrib, useAbsolute);
+		var result = NativeAPI.removeFileAttributes(path, attrib, useAbsol);
 		if(result == 0) Logs.trace('Failed to remove attributes to $path with a code of: $result', WARNING);
 		return result;
-		#else
-		return 0;
-		#end
 	}
 
 	/**
@@ -307,7 +271,7 @@ class CoolUtil
 	 * @return String Result without any kind of IP
 	 */
 	public static inline function removeIP(msg:String):String {
-		return ~/\d+.\d+.\d+.\d+/.replace(msg, "[Your IP]"); // For now its just IPs but who knows in the future..  - Nex
+		return ~/\d+.\d+.\d+.\d+/.replace(msg, "[Your IP]");  // For now its just IPs but who knows in the future..  - Nex
 	}
 
 	/**
@@ -414,7 +378,7 @@ class CoolUtil
 	 * @param Looped Whenever the music loops (true)
 	 * @param Group A group that this music belongs to (default)
 	 */
-	@:noUsing public static function playMusic(path:String, Persist:Bool = false, Volume:Float = 1, Looped:Bool = true, DefaultBPM:Float = 102, ?Group:FlxSoundGroup) {
+	@:noUsing public static function playMusic(path:String, Persist:Bool = false, Volume:Int = 1, Looped:Bool = true, DefaultBPM:Int = 102, ?Group:FlxSoundGroup) {
 		Conductor.reset();
 		FlxG.sound.playMusic(path, Volume, Looped, Group);
 		if (FlxG.sound.music != null) {
@@ -425,24 +389,21 @@ class CoolUtil
 		if (Assets.exists(infoPath)) {
 			var musicInfo = IniUtil.parseAsset(infoPath, [
 				"BPM" => null,
-				"TimeSignature" => Flags.DEFAULT_BEATS_PER_MEASURE + "/" + Flags.DEFAULT_STEPS_PER_BEAT,
-				"LoopTime" => '${Flags.DEFAULT_LOOP_TIME}'
+				"TimeSignature" => "4/4",
+				"LoopTime" => "0.0"
 			]);
 
-			if (FlxG.sound.music != null)
+		
+			if (FlxG.sound.music != null) {
 				FlxG.sound.music.loopTime = Std.parseFloat(musicInfo["LoopTime"]) * 1000;
 			var timeSignParsed:Array<Null<Float>> = musicInfo["TimeSignature"] == null ? [] : [for(s in musicInfo["TimeSignature"].split("/")) Std.parseFloat(s)];
 			var beatsPerMeasure:Float = 4;
 			var stepsPerBeat:Int = 4;
 
-			var timeSignParsed:Array<Null<Float>> = musicInfo["TimeSignature"] == null ? [] : [for(s in musicInfo["TimeSignature"].split("/")) Std.parseFloat(s)];
-			var beatsPerMeasure:Float = Flags.DEFAULT_BEATS_PER_MEASURE;
-			var stepsPerBeat:Int = Flags.DEFAULT_STEPS_PER_BEAT;
-
-			// Check later, i don't think timeSignParsed can contain null, only nan
+			// Check later, i dont think timeSignParsed can contain null, only nan
 			if (timeSignParsed.length == 2 && !timeSignParsed.contains(null)) {
-				beatsPerMeasure = timeSignParsed[0] == null || timeSignParsed[0] <= 0 ? Flags.DEFAULT_BEATS_PER_MEASURE : cast timeSignParsed[0];
-				stepsPerBeat = timeSignParsed[1] == null || timeSignParsed[1] <= 0 ? Flags.DEFAULT_STEPS_PER_BEAT : cast timeSignParsed[1];
+				beatsPerMeasure = timeSignParsed[0] == null || timeSignParsed[0] <= 0 ? 4 : cast timeSignParsed[0];
+				stepsPerBeat = timeSignParsed[1] == null || timeSignParsed[1] <= 0 ? 4 : cast timeSignParsed[1];
 			}
 
 			var bpm:Null<Float> = Std.parseFloat(musicInfo["BPM"]).getDefault(DefaultBPM);
@@ -712,14 +673,13 @@ class CoolUtil
 	 * @return Index, or -1 if unsuccessful.
 	 */
 	public static inline function indexOfFromLast<T>(array:Array<T>, element:T):Int {
-		/*var i = array.length - 1;
+		var i = array.length - 1;
 		while(i >= 0) {
 			if (array[i] == element)
 				break;
 			i--;
 		}
-		return i;*/
-		return array.lastIndexOf(element);
+		return i;
 	}
 
 	/**
@@ -804,15 +764,6 @@ class CoolUtil
 		return r;
 	}
 
-	/**
-	 * Quantizes a value to a certain amount.
-	 * Example: `quantize(2.5543, 1)` will return `2.0`
-	 * Example: `quantize(2.5543, 10)` will return `2.5`
-	 * Example: `quantize(2.5543, 100)` will return `2.55`
-	 *
-	 * @param Value Value to quantize
-	 * @param Quant Quantization amount
-	 */
 	@:noUsing public static inline function quantize(Value:Float, Quant:Float) {
 		return Math.fround(Value * Quant) / Quant;
 	}
@@ -830,57 +781,8 @@ class CoolUtil
 		frontEnd.music = music;
 	}
 
-	/**
-	 * Gets the FlxEase from a string.
-	 * @param mainEase Main ease
-	 * @param suffix Suffix (Ignored if `mainEase` is `linear`)
-	 */
-	@:noUsing public static inline function flxeaseFromString(mainEase:String, ?suffix:String)
-		return Reflect.field(FlxEase, mainEase + (mainEase == "linear" || suffix == null ? "" : suffix));
-
-	/**
-	 * Sorts an array alphabetically.
-	 * @param array Array to sort
-	 * @param lowercase Whenever the array should be sorted in lowercase
-	 */
-	public static function sortAlphabetically(array:Array<String>, ?lowercase:Bool=false) {
-		array.sort(function(a1, a2):Int {
-			if(lowercase) {
-				a1 = a1.toLowerCase();
-				a2 = a2.toLowerCase();
-			}
-			if (a1 < a2) return -1;
-			if (a1 > a2) return 1;
-			return 0;
-		});
-		return array;
-	}
-
-	/**
-	 * Pushes an element to an array, but only if it doesn't already exist.
-	 * @param array Array to push to
-	 * @param element Element to push
-	 */
-	public static inline function pushOnce<T>(array:Array<T>, element:T) {
-		#if (haxe >= "4.0.0")
-		if (!array.contains(element))
-			array.push(element);
-		#else
-		if (array.indexOf(element) == -1)
-			array.push(element);
-		#end
-	}
-
-	#if !(haxe >= "4.0.0")
-	/**
-	 * Checks if an array contains an element.
-	 * @param array Array to check
-	 * @param element Element to check
-	 */
-	public static inline function contains<T>(array:Array<T>, element:T) {
-		return array.indexOf(element) != -1;
-	}
-	#end
+	@:noUsing public static inline function flxeaseFromString(mainEase:String, suffix:String)
+		return Reflect.field(FlxEase, mainEase + (mainEase == "linear" ? "" : suffix));
 
 	/*
 	 * Returns the filename of a path, without the extension.
@@ -965,10 +867,9 @@ class CoolUtil
 	 * Converts an array of numbers into a string of ranges.
 	 * Example: [1,2,3,5,7,8,9,8,7,6,5] -> "1..3,5,7..9,8..5"
 	 * @param numbers Array of numbers
-	 * @param separator Separator between ranges
 	 * @return String representing the ranges
 	 */
-	public static function formatNumberRange(numbers:Array<Int>, separator:String = ","):String {
+	public static function formatNumberRange(numbers:Array<Int>, seperator:String = ","):String {
 		if (numbers.length == 0) return "";
 
 		var result:Array<String> = [];
@@ -1005,26 +906,7 @@ class CoolUtil
 			i++;
 		}
 
-		return result.join(separator);
-	}
-
-	/**
-	 * Deep flattens an array.
-	 * Example: `deepFlatten([1, [2, 3], 4])` will return `[1, 2, 3, 4]`
-	 * @param arr Array to flatten
-	 * @param result Result array
-	 */
-	public static function deepFlatten(arr:Array<Dynamic>, ?result:Array<Dynamic>):Array<Dynamic> {
-		if(arr == null) return [];
-		if(result == null) result = [];
-		for (e in arr) {
-			if (Std.isOfType(e, Array)) {
-				deepFlatten(e, result);
-			} else {
-				result.push(e);
-			}
-		}
-		return result;
+		return result.join(seperator);
 	}
 
 	public inline static function parsePropertyString(fieldPath:String):Array<OneOfTwo<String, Int>> {
@@ -1147,7 +1029,7 @@ class PropertyInfo {
 }
 
 /**
- * SFXs to play using `CoolUtil.playMenuSFX`.
+ * SFXs to play using `playMenuSFX`.
  */
 enum abstract CoolSfx(Int) from Int {
 	var SCROLL = 0;
