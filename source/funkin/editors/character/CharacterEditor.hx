@@ -8,6 +8,8 @@ import flixel.math.FlxPoint;
 import funkin.editors.ui.UIContextMenu.UIContextMenuOption;
 import funkin.game.Character;
 
+using StringTools;
+
 class CharacterEditor extends UIState {
 	static var __character:String;
 	public var character:Character;
@@ -361,8 +363,19 @@ class CharacterEditor extends UIState {
 		if (charXML.exists("flipX") && !character.flipX) charXML.remove("flipX");
 		if (charXML.exists("scale") && character.scale.x == 1) charXML.remove("scale");
 		if (charXML.exists("antialiasing") && character.antialiasing) charXML.remove("antialiasing");
+		if (charXML.exists("sprite") && character.sprite == character.curCharacter) charXML.remove("sprite");
+		if (charXML.exists("icon") && character.icon == character.curCharacter) charXML.remove("icon");
 
-		return "<!DOCTYPE codename-engine-character>\n" + Printer.print(charXML, true);
+		for (a in charXML.elements())
+			if (a.nodeName == "anim") {
+				if (a.exists("x") && a.get("x") == "0") a.remove("x");
+				if (a.exists("y") && a.get("y") == "0") a.remove("y");
+				if (a.exists("fps") && a.get("fps") == "24") a.remove("fps");
+				if (a.exists("loop") && a.get("loop") == "false") a.remove("loop");
+			}
+
+		var xmlThingYea:String = "<!DOCTYPE codename-engine-character>\n" + Printer.print(charXML, Options.editorPrettyPrint);
+		return Options.editorPrettyPrint ? xmlThingYea : xmlThingYea.replace("\n", "");
 	}
 
 	function _edit_undo(_) {
