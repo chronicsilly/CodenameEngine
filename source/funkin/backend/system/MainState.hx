@@ -3,11 +3,11 @@ package funkin.backend.system;
 #if MOD_SUPPORT
 import sys.FileSystem;
 #end
-import funkin.backend.assets.ModsFolder;
-import funkin.menus.TitleState;
-import funkin.menus.BetaWarningState;
-import funkin.backend.chart.EventsData;
 import flixel.FlxState;
+import funkin.backend.assets.ModsFolder;
+import funkin.backend.chart.EventsData;
+import funkin.backend.system.framerate.Framerate;
+import funkin.menus.TitleState;
 import haxe.io.Path;
 
 @dox(hide)
@@ -21,11 +21,12 @@ typedef AddonInfo = {
  */
 class MainState extends FlxState {
 	public static var initiated:Bool = false;
-	public static var betaWarningShown:Bool = false;
 	public override function create() {
 		super.create();
-		if (!initiated)
+		if (!initiated) {
 			Main.loadGameSettings();
+		}
+
 		initiated = true;
 
 		#if sys
@@ -99,20 +100,22 @@ class MainState extends FlxState {
 			loadLib(addon.path, ltrim(addon.name, "[HIGH]"));
 		#end
 
-		MusicBeatTransition.script = "";
+		Flags.load();
+		ModsFolder.onModSwitch.dispatch(ModsFolder.currentModFolder); // Loads global.hx
+		MusicBeatTransition.script = Flags.DEFAULT_TRANSITION_SCRIPT;
+		WindowUtils.resetTitle();
 		Main.refreshAssets();
-		ModsFolder.onModSwitch.dispatch(ModsFolder.currentModFolder);
 		DiscordUtil.init();
 		EventsData.reloadEvents();
 		TitleState.initialized = false;
 
-		if (betaWarningShown)
-			FlxG.switchState(new TitleState());
-		else {
-			FlxG.switchState(new BetaWarningState());
-			betaWarningShown = true;
-		}
+		if (Framerate.isLoaded)
+			Framerate.instance.reload();
 
+		FlxG.switchState(new TitleState());
+
+		#if sys
 		CoolUtil.safeAddAttributes('./.temp/', NativeAPI.FileAttribute.HIDDEN);
+		#end
 	}
 }

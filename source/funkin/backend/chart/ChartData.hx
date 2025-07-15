@@ -20,13 +20,13 @@ typedef ChartMetaData = {
 	public var ?displayName:String;
 	public var ?beatsPerMeasure:Float;
 	public var ?stepsPerBeat:Int;
-	public var ?needsVoices:Bool;
 	public var ?icon:String;
 	public var ?color:FlxColor;
 	public var ?difficulties:Array<String>;
 	public var ?coopAllowed:Bool;
 	public var ?opponentModeAllowed:Bool;
 	public var ?customValues:Dynamic;
+	public var ?needsVoices:Bool;
 }
 
 typedef ChartStrumLine = {
@@ -40,7 +40,7 @@ typedef ChartStrumLine = {
 	var ?scrollSpeed:Float;
 	var ?vocalsSuffix:String;
 
-	var ?strumLinePos:Float; // Backwards compatability
+	var ?strumLinePos:Float; // Backwards compatibility
 }
 
 typedef ChartNote = {

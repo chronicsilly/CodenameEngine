@@ -1,7 +1,7 @@
 package funkin.editors.charter;
 
-import flixel.tweens.FlxTween;
 import flixel.math.FlxPoint;
+import flixel.tweens.FlxTween;
 
 class CharterStrumlineButton extends UISprite {
 	public var button:UISprite;

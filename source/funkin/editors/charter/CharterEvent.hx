@@ -8,6 +8,9 @@ import flixel.system.FlxAssets.FlxGraphicAsset;
 import funkin.backend.chart.ChartData.ChartEvent;
 import funkin.backend.scripting.DummyScript;
 import funkin.backend.scripting.Script;
+import flixel.math.FlxPoint;
+import flixel.system.FlxAssets.FlxGraphicAsset;
+import funkin.backend.chart.ChartData.ChartEvent;
 import funkin.editors.charter.Charter.ICharterSelectable;
 import funkin.editors.charter.CharterBackdropGroup.EventBackdrop;
 import funkin.game.Character;
@@ -168,6 +171,26 @@ class CharterEvent extends UISliceSprite implements ICharterSelectable {
 		var state = cast(FlxG.state, Charter);
 		if (index != null && index >= 0 && index < state.strumLines.length) {
 			return getIconFromCharName(state.strumLines.members[index].strumLine.characters[0]);
+		}
+	}
+
+	public static function generateEventIcon(event:ChartEvent) {
+		return switch(event.name) {
+			default:
+				generateDefaultIcon(event.name);
+			case "Camera Movement":
+				// custom icon for camera movement
+				var state:Charter = cast FlxG.state;
+				if (event.params != null && event.params[0] != null && event.params[0] >= 0 && event.params[0] < state.strumLines.length) {
+					// camera movement, use health icon
+					var icon = Character.getIconFromCharName(state.strumLines.members[event.params[0]].strumLine.characters[0]);
+					var healthIcon = new HealthIcon(icon);
+					healthIcon.setUnstretchedGraphicSize(32, 32, false);
+					healthIcon.scrollFactor.set(1, 1);
+					healthIcon.active = false;
+					healthIcon;
+				} else
+					generateDefaultIcon(event.name);
 		}
 		return null;
 	}

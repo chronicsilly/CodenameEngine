@@ -1,12 +1,12 @@
 package funkin.editors.charter;
 
 import flixel.group.FlxSpriteGroup;
-import funkin.game.Character;
-import funkin.editors.ui.UITopMenu.UITopMenuButton;
-import funkin.game.HealthIcon;
+import flixel.sound.FlxSound;
 import funkin.backend.chart.ChartData.ChartStrumLine;
 import funkin.backend.shaders.CustomShader;
-import flixel.sound.FlxSound;
+import funkin.editors.ui.UITopMenu.UITopMenuButton;
+import funkin.game.Character;
+import funkin.game.HealthIcon;
 
 class CharterStrumline extends UISprite {
 	public var strumLine:ChartStrumLine;

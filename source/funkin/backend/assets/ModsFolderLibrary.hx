@@ -1,11 +1,10 @@
 package funkin.backend.assets;
 
+import lime.graphics.Image;
+import lime.media.AudioBuffer;
+import lime.text.Font;
 import lime.utils.AssetLibrary;
 import lime.utils.Assets as LimeAssets;
-
-import lime.media.AudioBuffer;
-import lime.graphics.Image;
-import lime.text.Font;
 import lime.utils.Bytes;
 
 #if MOD_SUPPORT
@@ -19,7 +18,7 @@ class ModsFolderLibrary extends AssetLibrary implements IModsAssetLibrary {
 	public var folderPath:String;
 	public var modName:String;
 	public var libName:String;
-	public var useImageCache:Bool = true;
+	//public var useImageCache:Bool = true;
 	public var prefix = 'assets/';
 
 	public function new(folderPath:String, libName:String, ?modName:String) {
@@ -87,7 +86,7 @@ class ModsFolderLibrary extends AssetLibrary implements IModsAssetLibrary {
 		return __getFiles(folder, false);
 
 	public function __getFiles(folder:String, folders:Bool = false) {
-		if (!folder.endsWith("/")) folder = folder + "/";
+		if (!folder.endsWith("/")) folder += "/";
 		if (!__parseAsset(folder)) return [];
 		var path = getAssetPath();
 		try {
