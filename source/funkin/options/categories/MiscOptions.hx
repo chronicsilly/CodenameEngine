@@ -26,6 +26,13 @@ class MiscOptions extends OptionsScreen {
 			"Yuri",
 			"If checked, will open yxtwitter randomly.",
 			"lesbiab"));
+		add(new ArrayOption(
+			"Pronouns",
+			"Woke...?",
+			["they", "she", "he"],
+			["They/Them", "She/Her", "He/Him"],
+			"pronouns"
+		));
 		add(new TextOption(
 			"Reset Save Data",
 			"Select this option to reset save data. This will remove all of your highscores.",

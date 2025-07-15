@@ -11,7 +11,9 @@ import funkin.game.Character;
 using StringTools;
 
 class CharacterEditor extends UIState {
-	static var __character:String;
+	public static var __character:String;
+	public static var rawXML:String = '<!DOCTYPE codename-engine-character><character><anim name="idle"><anim name="singLEFT"><anim name="singDOWN"><anim name="singUP"><anim name="singRIGHT"></character>';
+
 	public var character:Character;
 
 	public var ghosts:CharacterGhostsHandler;
@@ -328,6 +330,7 @@ class CharacterEditor extends UIState {
 	}
 
 	function _file_new(_) {
+		openSubState(new SaveSubstate(rawXML, {defaultSaveFile: character.curCharacter + ".xml"}));
 	}
 
 	function _file_save(_) {
@@ -368,10 +371,13 @@ class CharacterEditor extends UIState {
 
 		for (a in charXML.elements())
 			if (a.nodeName == "anim") {
+				trace(a);
 				if (a.exists("x") && a.get("x") == "0") a.remove("x");
 				if (a.exists("y") && a.get("y") == "0") a.remove("y");
 				if (a.exists("fps") && a.get("fps") == "24") a.remove("fps");
 				if (a.exists("loop") && a.get("loop") == "false") a.remove("loop");
+				trace(a);
+				trace("");
 			}
 
 		var xmlThingYea:String = "<!DOCTYPE codename-engine-character>\n" + Printer.print(charXML, Options.editorPrettyPrint);

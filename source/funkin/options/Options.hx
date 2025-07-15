@@ -30,12 +30,14 @@ class Options
 	public static var colorHealthBar:Bool = true;
 	public static var lowMemoryMode:Bool = false;
 	public static var betaUpdates:Bool = false;
-	public static var lesbiab:Bool = false;
 	public static var splashesEnabled:Bool = true;
 	public static var hitWindow:Float = 250;
 	public static var songOffset:Float = 0;
 	public static var framerate:Int = 120;
 	public static var gpuOnlyBitmaps:Bool = #if (mac || web) false #else true #end; // causes issues on mac and web
+
+	public static var lesbiab:Bool = false;
+	public static var pronouns:String = "they";
 
 	public static var lastLoadedMod:String = null;
 

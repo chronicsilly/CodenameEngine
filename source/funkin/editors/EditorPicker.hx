@@ -33,6 +33,16 @@ class EditorPicker extends MusicBeatSubstate {
 		},
 		#end
 		{
+			name: "Noteskin Editor",
+			id: "noteskin",
+			state: null
+		},
+		{
+			name: "Alphabet Editor",
+			id: "alphabet",
+			state: null
+		},
+		{
 			name: "Wiki",
 			id: "wiki",
 			state: null,
