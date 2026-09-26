@@ -207,6 +207,16 @@ class UIImageExplorer extends UIFileExplorer {
 				imageFiles.set(Path.withoutDirectory(spritemapPath), sys.io.File.getBytes(spritemapPath));
 			}
 
+			for (spritemap in spritemaps) {
+				var spritemapPath:String = Path.join([directoryPath, spritemap]);
+
+				var info = FileSystem.stat(spritemapPath);
+				size += info.size;
+
+				spritemapPath = spritemapPath.replace('/', '\\');
+				imageFiles.set(Path.withoutDirectory(spritemapPath), sys.io.File.getBytes(spritemapPath));
+			}
+
 			file = cast sys.io.File.getBytes(filePath = spritemapPath);
 			image = BitmapData.fromBytes(file).crop();
 
