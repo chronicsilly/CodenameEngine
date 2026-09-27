@@ -38,11 +38,14 @@ class UIImageExplorer extends UIFileExplorer {
 	inline function translate(id:String, ?args:Array<Dynamic>)
 		return TU.translate("uiImageExplorer." + id, args);
 
-	public function new(x:Float, y:Float, image:String, ?w:Int, ?h:Int, ?onFile:(String, Bytes)->Void, ?directory:String = "images") {
+	public function new(x:Float, y:Float, image:String, ?w:Int, ?h:Int, ?onFile:(String, Bytes)->Void, ?directory:String = "images", ?maxSize:FlxPoint) {
 		super(x, y, w, h, Flags.IMAGE_EXTS, function (filePath, file) {
 			if (filePath != null && file != null) uploadImage(filePath, file);
 			if (onFile != null) onFile(filePath, file);
 		});
+
+		if(maxSize != null)
+			this.maxSize = maxSize;
 		
 		deleteButton.bWidth = 26;
 		deleteButton.bHeight = 26;
@@ -67,6 +70,7 @@ class UIImageExplorer extends UIFileExplorer {
 	
 			if (FileSystem.exists(fullImagePath))
 				loadFile(fullImagePath);
+				
 		}
 
 		allowDirectories = CoolUtil.isMapEmpty(imageFiles); __firstLoad = false;

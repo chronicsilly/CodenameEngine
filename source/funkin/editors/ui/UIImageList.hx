@@ -5,10 +5,12 @@ import flixel.text.FlxText.FlxTextFormat;
 import flixel.text.FlxText.FlxTextFormatMarkerPair;
 
 class UIImageList extends UIButtonList<UIImageButton> {
-	public var imgPath:String;
+	public var onImage:()-> Void;
+	public var dirPath:String;
 
-	public function new(x:Int, y:Int, path:String = "images/characters", ?onImage:()-> Void){
-		this.imgPath = path;
+	public function new(x:Int, y:Int, path:String = "images/characters", ?onImage:()-> Void, ?baseImages:Array<String>){
+		this.dirPath = path;
+		this.onImage = onImage;
 
 		super(x, y, 640, 270, null, FlxPoint.get(Std.int(500-16-32-20), 100), null, FlxPoint.get(-100, 0));
 
@@ -16,14 +18,28 @@ class UIImageList extends UIButtonList<UIImageButton> {
 		frames = Paths.getFrames('editors/ui/inputbox');
 		alpha = 0.7;
 
+		addImages(baseImages);
+
 		this.addButton.callback = function() {
-			var butt = new UIImageButton(10, 10, 650 - 20, 60 - 10, path);
-			
-			if(onImage != null)
-				butt.onImage = onImage;
-			
-			add(butt);
+			add(makeNewButton());
 		}
+	}
+
+	function addImages(imgs:Array<String>){
+		if (imgs == null)
+			return;
+
+		for(img in imgs)
+			add(makeNewButton(img));
+	}
+
+	public function makeNewButton(?img:String):UIImageButton {
+		var butt = new UIImageButton(10, 10, 650 - 20, 60 - 10, dirPath, img);
+			
+		if(onImage != null)
+			butt.onImage = onImage;
+			
+		return butt;
 	}
 
 	public function getSaveDatas() {
@@ -32,7 +48,7 @@ class UIImageList extends UIButtonList<UIImageButton> {
 		for(b in buttons){
 			var file = b.imageExplorer.getSaveData();
 
-			if(file.imageName != null)
+			if(b.imageExplorer.uiElement != null && b.imageExplorer.uiElement.exists)
 				data.push(file);
 		}
 		
@@ -57,7 +73,7 @@ class UIImageButton extends UIButton {
 
 	public var labels:Map<UISprite, UIText> = [];
 
-	public function new(x:Int, y:Int, w:Int, h:Int, path:String) {
+	public function new(x:Int, y:Int, w:Int, h:Int, ?path:String, ?imgPath:String) {
 		super(x,y,"",null,w,h);
 
 		function addLabelOn(ui:UISprite, text:String, ?size:Int):UIText {
@@ -74,9 +90,8 @@ class UIImageButton extends UIButton {
 		field.fieldWidth = 0; framesOffset = 9;
 		field.size = 14;
 
-		imageExplorer = new UIImageExplorer(10, 10, null, this.bWidth - 10, this.bHeight - 10, (_,_) -> {onImage();}, path);
+		imageExplorer = new UIImageExplorer(10, 10, imgPath, this.bWidth - 10, this.bHeight - 10, (_,_) -> {if(onImage != null) onImage();}, path, FlxPoint.get(w - 40, 500));
 		members.push(imageExplorer);
-		imageExplorer.maxSize.x = w - 40;
 	}
 
 	inline function updateButtonsPos(){
@@ -88,8 +103,5 @@ class UIImageButton extends UIButton {
 	public override function draw() {
 		updateButtonsPos();
 		super.draw();
-	}
-
-	function onLoadImage(){
 	}
 }
