@@ -305,6 +305,26 @@ class UIImageExplorer extends UIFileExplorer {
 		members.push(directoryBG); __firstLoad = false;
 	}
 
+	override function updateButtonsPos(){
+		super.updateButtonsPos();
+		directoryBG.follow(this,0,0);
+		directoryTextBox.follow(this, 0, 8+12+4);
+		directoryTextBoxLabel.follow(directoryBG, 8,6);
+		
+		if(uiElement != null && uiElement.exists){
+			uiElement.follow(this, 16, 16+deleteButton.bHeight+4);
+			fileText.follow(this, 20, 16);
+		}
+
+		deleteButton.follow(this, bWidth - deleteButton.bWidth - 16, 12);
+		deleteIcon.follow(deleteButton, deleteButton.bWidth/2 - 8, deleteButton.bHeight/2 - 8);
+
+		directoryButton.x = deleteButton.x - deleteButton.bWidth - 12;
+		directoryButton.y = y + 12;
+
+		directoryIcon.follow(directoryButton, directoryButton.bWidth/2 - (directoryIcon.width/2), directoryButton.bHeight/2 - (directoryIcon.height/2));
+	}
+
 	public var saveData:ImageSaveData = null;
 	public inline function getSaveData():ImageSaveData {
 		return saveData = {
