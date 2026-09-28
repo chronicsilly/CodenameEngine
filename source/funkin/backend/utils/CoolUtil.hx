@@ -1305,7 +1305,7 @@ final class CoolUtil
 					 for(e in f.elements){
 						var element = e.toSymbolInstance();
 
-						if(element.symbolName != null)
+						if(element != null && element.symbolName != null)
 							animsList.push(element.symbolName);
 					 }
 				}
