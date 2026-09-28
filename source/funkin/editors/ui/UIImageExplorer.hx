@@ -64,14 +64,12 @@ class UIImageExplorer extends UIFileExplorer {
 		directoryBG.members.push(directoryTextBox);
 
 		if (image != null) {
-			var fullImagePath:String = '${Path.normalize(Sys.getCwd())}/${Paths.image(image)}'.replace('/', '\\');
-			if (!FileSystem.exists(fullImagePath))
-				fullImagePath = fullImagePath.replace('assets', '${ModsFolder.modsPath}\\${ModsFolder.currentModFolder}');
-
-			var noExt = Path.withoutExtension(fullImagePath);
-			if (FileSystem.exists('$noExt\\spritemap1.png'))
-				fullImagePath = '$noExt\\spritemap1.png';
-	
+			var imagePath:String = Paths.image(image);
+			var noExt = Path.withoutExtension(imagePath);
+			if (Paths.assetsTree.getPath('$noExt\\spritemap1.png') != null)
+				imagePath = '$noExt\\spritemap1.png';
+			
+			var fullImagePath:String = '${Path.normalize(Sys.getCwd())}/${Paths.assetsTree.getPath(imagePath)}'.replace('/', '\\');
 			if (FileSystem.exists(fullImagePath))
 				loadFile(fullImagePath);
 				
