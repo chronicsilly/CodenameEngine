@@ -11,6 +11,7 @@ import openfl.display.BitmapData;
 import sys.FileSystem;
 import sys.io.File;
 import animate.FlxAnimateJson;
+import funkin.backend.assets.ModsFolder;
 
 using StringTools;
 using funkin.backend.utils.BitmapUtil;
@@ -64,6 +65,9 @@ class UIImageExplorer extends UIFileExplorer {
 
 		if (image != null) {
 			var fullImagePath:String = '${Path.normalize(Sys.getCwd())}/${Paths.image(image)}'.replace('/', '\\');
+			if (!FileSystem.exists(fullImagePath))
+				fullImagePath = fullImagePath.replace('assets', '${ModsFolder.modsPath}\\${ModsFolder.currentModFolder}');
+
 			var noExt = Path.withoutExtension(fullImagePath);
 			if (FileSystem.exists('$noExt\\spritemap1.png'))
 				fullImagePath = '$noExt\\spritemap1.png';
