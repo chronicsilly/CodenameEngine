@@ -223,7 +223,6 @@ class CharterNote extends UISprite implements ICharterSelectable {
 		var newID:Int = Std.int(FlxMath.bound(fullID + Std.int(change.y), 0, Charter.instance.strumLines.totalKeyCount-1));
 		var newStrumLine = Charter.instance.strumLines.getStrumlineFromID(newID);
 
-		trace(susLength);
 		updatePos(newStep, (newID - newStrumLine.startingID) % newStrumLine.keyCount, susLength, type, newStrumLine);
 	}
 
