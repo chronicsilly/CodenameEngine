@@ -251,6 +251,7 @@ class ConsoleUI {
 		var toggled:Bool = false;
 		if (!Options.useNativeConsole) {
 			for (key in Options.SOLO_DEV_CONSOLE) {
+				if (!key.isNamedImGuiKey()) continue; //prevent imgui assert if key == FlxKey.NONE
 				if (ImGui.isKeyPressed(key.toImGuiKey(), false)) toggled = true;
 			}
 		}
@@ -258,6 +259,7 @@ class ConsoleUI {
 
 		var toggledInspector:Bool = false;
 		for (key in Options.SOLO_DEV_INSPECTOR) {
+			if (!key.isNamedImGuiKey()) continue;
 			if (ImGui.isKeyPressed(key.toImGuiKey(), false)) toggledInspector = true;
 		}
 		if (toggledInspector) toggleInspector();
