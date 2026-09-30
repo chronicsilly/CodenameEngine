@@ -2461,7 +2461,7 @@ class Charter extends UIState {
 		return {
 			type: note.type,
 			time: time,
-			sLen: Conductor.getTimeForStep(note.step + note.susLength) - time,
+			sLen: Conductor.getTimeForStep(note.susLength),
 			id: note.id
 		};
 	}
