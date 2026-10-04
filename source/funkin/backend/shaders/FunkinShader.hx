@@ -143,6 +143,24 @@ class FunkinShader extends FlxRuntimeShader implements IHScriptCustomBehaviour {
 		__glSourceAssembler = new FunkinShaderSourceAssembler(this);
 	}
 
+	override function __getParameterDefault(assign:Null<String>, type:ShaderParameterType, isSampler:Bool):Dynamic
+	{
+		if (isSampler)
+		{
+			var p = assign.charAt(0);
+			if ((p == "'" || p == '"') && assign.charAt(assign.length - 1) == p) assign = assign.substring(1, assign.length - 1);
+
+			var path = Paths.image(assign);
+			if (FlxG.assets.exists(path))
+			{
+				var graphic = FlxG.bitmap.add(path);
+				if (graphic != null) return graphic.bitmap;
+			}
+		}
+
+		return super.__getParameterDefault(assign, type, isSampler);
+	}
+
 	override function toString():String {
 		return __cacheProgramId != null ? 'FunkinShader(${__cacheProgramId})' : 'FunkinShader';
 	}
