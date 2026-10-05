@@ -88,7 +88,7 @@ final class WindowUtils {
 	 * @param height The window's resolution height (Defaults to 720).
 	 * @param changeSize Should it also update the window size.
 	**/
-	public static inline function setResolution(?width:Int, ?height:Int, changeSize = true) {
+	public static inline function setResolution(?width:Int, ?height:Int, changeSize = #if windows true #else false #end) {
 
 		var w = width == null ? Flags.GAME_WIDTH : width;
 		var h = height == null ? Flags.GAME_HEIGHT : height;
