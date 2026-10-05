@@ -2,8 +2,8 @@ package funkin.backend.utils;
 
 import lime.graphics.Image;
 import openfl.Lib;
-import openfl.system.Capabilities;
 #if windows
+import openfl.system.Capabilities;
 import funkin.backend.utils.native.Windows;
 #end
 
@@ -75,20 +75,25 @@ final class WindowUtils {
 	 * @param height The window's resolution height (Defaults to 720).
 	 * @param changeSize Should it also update the window size.
 	**/
-	public static function setResolution(?width:Int, ?height:Int, changeSize = #if windows true #else false #end) {
+	public static function setResolution(?width:Int, ?height:Int, changeSize = true) {
 
 		var w = width == null ? Flags.GAME_WIDTH : width;
 		var h = height == null ? Flags.GAME_HEIGHT : height;
 
+		if(FlxG.width == w && FlxG.height == h)
+			return;
+
 		var win = Lib.application.window;
 
 		@:privateAccess {
-			if(changeSize){
-				win.resize(w, h);
+			#if windows
+				if(changeSize){
+					win.resize(w, h);
 
-				win.x = Std.int((Capabilities.screenResolutionX / 2) - (w / 2));
-				win.y = Std.int((Capabilities.screenResolutionY / 2) - (h / 2));
-			}
+					win.x = Std.int((Capabilities.screenResolutionX / 2) - (w / 2));
+					win.y = Std.int((Capabilities.screenResolutionY / 2) - (h / 2));
+				}
+			#end
 			
 			FlxG.width = FlxG.initialWidth = w; FlxG.height = FlxG.initialHeight = h;
 		}
