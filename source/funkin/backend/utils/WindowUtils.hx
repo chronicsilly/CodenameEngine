@@ -89,9 +89,7 @@ final class WindowUtils {
 			#if windows
 				if(changeSize){
 					win.resize(w, h);
-
-					win.x = Std.int((Capabilities.screenResolutionX / 2) - (w / 2));
-					win.y = Std.int((Capabilities.screenResolutionY / 2) - (h / 2));
+					win.move(Std.int((Capabilities.screenResolutionX / 2) - (w / 2)), Std.int((Capabilities.screenResolutionY / 2) - (h / 2)));
 				}
 			#end
 			
