@@ -32,8 +32,8 @@ class Flags {
 	public static var MOD_DOWNLOAD_LINK:String  = "";
 	public static var MOD_DEPENDENCIES:Array<String> = [];
 
+	@:noCompletion public static var MOD_ICON64:Null<String> = null;
 	@:noCompletion public static var MOD_ICON32:Null<String> = null;
-	@:noCompletion public static var MOD_ICON24:Null<String> = null;
 	@:noCompletion public static var MOD_ICON16:Null<String> = null;
 	public static var MOD_ICON:Null<String> = null;
 
@@ -356,18 +356,18 @@ class Flags {
 		if (VIDEO_EXT == null) VIDEO_EXT = VIDEO_EXTS[0]; else VIDEO_EXTS = [VIDEO_EXT];
 		if (IMAGE_EXT == null) IMAGE_EXT = IMAGE_EXTS[0]; else IMAGE_EXTS = [IMAGE_EXT];
 
-		if (MOD_ICON == null && MOD_ICON16 == null && MOD_ICON24 == null && MOD_ICON32 == null) {
+		if (MOD_ICON == null && MOD_ICON16 == null && MOD_ICON32 == null && MOD_ICON64 == null) {
 			MOD_ICON = "iconOG";
 			MOD_ICON16 = "icon16";
-			MOD_ICON24 = "icon16";
 			MOD_ICON32 = "icon32";
+			MOD_ICON64 = "icon64";
 		}
 
 		var temp:String;
 		if (!Assets.exists(MOD_ICON) && Assets.exists(temp = Paths.image(MOD_ICON))) MOD_ICON = temp;
 		if (!Assets.exists(MOD_ICON16) && Assets.exists(temp = Paths.image(MOD_ICON16))) MOD_ICON16 = temp;
-		if (!Assets.exists(MOD_ICON24) && Assets.exists(temp = Paths.image(MOD_ICON24))) MOD_ICON24 = temp;
 		if (!Assets.exists(MOD_ICON32) && Assets.exists(temp = Paths.image(MOD_ICON32))) MOD_ICON32 = temp;
+		if (!Assets.exists(MOD_ICON64) && Assets.exists(temp = Paths.image(MOD_ICON64))) MOD_ICON64 = temp;
 	}
 
 	public static function loadFromDatas(datas:Array<String>):Map<String, String> {

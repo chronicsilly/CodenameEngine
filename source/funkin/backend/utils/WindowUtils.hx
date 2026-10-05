@@ -63,8 +63,8 @@ final class WindowUtils {
 
 			var path:String;
 			if (metric <= 16) path = Flags.MOD_ICON16;
-			else if (metric <= 24) path = Flags.MOD_ICON24;
 			else if (metric <= 32) path = Flags.MOD_ICON32;
+			else if (metric <= 64) path = Flags.MOD_ICON64;
 			else {
 				//path = Flags.MOD_ICON;
 				path = null;
