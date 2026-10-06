@@ -101,7 +101,6 @@ class Flags {
 	public static var SONGS_LIST_MOD_MODE:Allow<"prepend", "override", "append"> = "override";
 	public static var WEEKS_LIST_MOD_MODE:Allow<"prepend", "override", "append"> = "override";
 
-	public static var DEFAULT_ANTIALIASING:Bool = true;
 	// Translations system //
 	public static var DEFAULT_LANGUAGE:String = "en";
 	public static var DEFAULT_LANGUAGE_NAME:String = "English";
@@ -311,6 +310,8 @@ class Flags {
 	public static var FUNKIN_SHADER_CODE_PREFIX:String = "";
 	public static var FUNKIN_SHADER_CODE_FRAGMENT_PREFIX:String = "";
 	public static var FUNKIN_SHADER_CODE_VERTEX_PREFIX:String = "";
+
+	public static var DEFAULT_ANTIALIASING:Bool = true;
 
 	@:also(funkin.backend.utils.HttpUtil.userAgent)
 	public static var USER_AGENT:String = 'request';
