@@ -101,6 +101,7 @@ class Flags {
 	public static var SONGS_LIST_MOD_MODE:Allow<"prepend", "override", "append"> = "override";
 	public static var WEEKS_LIST_MOD_MODE:Allow<"prepend", "override", "append"> = "override";
 
+	public static var DEFAULT_ANTIALIASING:Bool = true;
 	// Translations system //
 	public static var DEFAULT_LANGUAGE:String = "en";
 	public static var DEFAULT_LANGUAGE_NAME:String = "English";
@@ -190,7 +191,7 @@ class Flags {
 	// Font configuration
 	public static var DEFAULT_FONT:String = "vcr.ttf";
 	public static var DEFAULT_FONT_SIZE:Int = 16;
-	
+
 	public static var DEFAULT_ALT_ANIM_SUFFIX:String = "-alt";
 
 	// to translate these you need to convert them into ids
