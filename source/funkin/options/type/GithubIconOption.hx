@@ -42,7 +42,7 @@ class GithubUserIcon extends FlxSprite
 		this.waitUntilLoad = waitUntilLoad;
 		super();
 		makeGraphic(size, size, FlxColor.TRANSPARENT);
-		antialiasing = DEFAULT_ANTIALIASING;
+		antialiasing = Flags.DEFAULT_ANTIALIASING;
 	}
 
 	override function update(elapsed:Float) {

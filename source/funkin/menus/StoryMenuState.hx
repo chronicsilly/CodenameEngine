@@ -321,7 +321,7 @@ class MenuItem extends FlxSprite
 		super(x, y);
 		CoolUtil.loadAnimatedGraphic(this, Paths.image(path, null, true));
 		screenCenter(X);
-		antialiasing = DEFAULT_ANTIALIASING;
+		antialiasing = Flags.DEFAULT_ANTIALIASING;
 	}
 
 	private var isFlashing:Bool = false;
